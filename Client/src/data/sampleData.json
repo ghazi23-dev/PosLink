@@ -1,0 +1,17 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Does",
+      "email": "john@example.com"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Sample Product",
+      "price": 99.99,
+      "description": "This is a sample product"
+    }
+  ]
+} 

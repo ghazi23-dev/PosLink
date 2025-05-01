@@ -1,0 +1,59 @@
+{
+  "stats": {
+    "turnover": "374.12 DT",
+    "orders": "32",
+    "consumption": "500 DT",
+    "availableCash": "681.3 DT"
+  },
+  "sales": [
+    {
+      "name": "PHILLY STEAK",
+      "quantity": 4,
+      "totalCost": "60.000",
+      "totalRevenue": "60.000",
+      "totalGain": "60.000"
+    },
+    {
+      "name": "MS. IMPERIALE",
+      "quantity": 5,
+      "totalCost": "100.000",
+      "totalRevenue": "100.000",
+      "totalGain": "100.000"
+    },
+    {
+      "name": "MS. REGAL",
+      "quantity": 5,
+      "totalCost": "50.000",
+      "totalRevenue": "50.000",
+      "totalGain": "50.000"
+    },
+    {
+      "name": "M. CHILI BEEF",
+      "quantity": 1,
+      "totalCost": "17.000",
+      "totalRevenue": "17.000",
+      "totalGain": "17.000"
+    },
+    {
+      "name": "M. SPICY CHICKEN",
+      "quantity": 2,
+      "totalCost": "32.000",
+      "totalRevenue": "32.000",
+      "totalGain": "32.000"
+    },
+    {
+      "name": "M. FERMIER",
+      "quantity": 5,
+      "totalCost": "65.000",
+      "totalRevenue": "65.000",
+      "totalGain": "65.000"
+    },
+    {
+      "name": "M. ALASKA",
+      "quantity": 2,
+      "totalCost": "40.000",
+      "totalRevenue": "40.000",
+      "totalGain": "40.000"
+    }
+  ]
+} 
