@@ -1,0 +1,3 @@
+Odkhol Dossier: Client cd Client
+INSTALLI node: modules npm install
+runni projet: npm run dev
