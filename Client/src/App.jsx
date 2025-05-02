@@ -2,21 +2,30 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Dashboard from './components/Dashboard/Dashboard';
 import Users from './components/Users/Users';
+import ProductList from './components/Products/ProductsList';
+import CategoriesSub from './components/Products/categoriesSub';
+import Supplements from './components/Products/Supplements';
+import Login from './pages/Login';
+
 import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Login route outside of Layout */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Protected routes inside Layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           
           {/* Product Management Routes */}
           <Route path="products">
-            <Route path="list" element={<div>Products List</div>} />
-            <Route path="categories" element={<div>Categories & Sub-categories</div>} />
-            <Route path="supplements" element={<div>Supplements Management</div>} />
+            <Route path="list" element={<ProductList/>} />
+            <Route path="categories" element={<CategoriesSub/>} />
+            <Route path="supplements" element={<Supplements/>} />
           </Route>
 
           {/* Stock Management Routes */}

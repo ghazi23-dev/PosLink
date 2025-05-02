@@ -25,6 +25,74 @@ const Layout = () => {
     orders: false
   });
 
+  // Navigation map for breadcrumb labels
+  const navigationMap = {
+    products: {
+      label: 'Product Management',
+      children: {
+        list: 'Products List',
+        categories: 'Categories & Sub-categories',
+        supplements: 'Supplements Management'
+      }
+    },
+    stock: {
+      label: 'Stock Management',
+      children: {
+        dashboard: 'Stock Dashboard',
+        purchases: 'Purchases',
+        gain: 'Gain Per Product',
+        inventory: 'Inventory',
+        ingredients: 'Ingredient Management',
+        recipes: 'Recipe Management'
+      }
+    },
+    tables: {
+      label: 'Table Management',
+      children: {
+        open: 'Open Tables',
+        history: 'Modification History'
+      }
+    },
+    orders: {
+      label: 'Orders & Payments',
+      children: {
+        list: 'Orders',
+        cash: 'Cash Drawer',
+        deliveries: 'Deliveries'
+      }
+    }
+  };
+
+  // Function to generate breadcrumb items
+  const getBreadcrumbItems = () => {
+    const pathSegments = location.pathname.split('/').filter(segment => segment);
+    
+    if (pathSegments.length === 0) {
+      return [{ label: 'Dashboard', path: '/' }];
+    }
+
+    const breadcrumbItems = [{ label: 'Dashboard', path: '/' }];
+    let currentPath = '';
+
+    pathSegments.forEach((segment, index) => {
+      currentPath += `/${segment}`;
+      
+      if (navigationMap[segment]) {
+        breadcrumbItems.push({
+          label: navigationMap[segment].label,
+          path: currentPath
+        });
+      } else if (index > 0 && navigationMap[pathSegments[index - 1]]?.children[segment]) {
+        breadcrumbItems.push({
+          label: navigationMap[pathSegments[index - 1]].children[segment],
+          path: currentPath
+        });
+      }
+    });
+
+    return breadcrumbItems;
+  };
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -58,13 +126,7 @@ const Layout = () => {
       <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={toggleSidebar}></div>
       <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="logo">
-          <div className="logo-icon">
-            <X weight="bold" />
-          </div>
-          <div className="logo-content">
-            <h2>RESTAURANT</h2>
-            <span>Description</span>
-          </div>
+          <img src="/logo_image.png" alt="Logo" className="logo-image" />
         </div>
         <nav className="nav-menu">
           <NavLink to="/" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
@@ -180,8 +242,17 @@ const Layout = () => {
             </button>
             <div className="breadcrumb">
               <House className="home-icon" weight="fill" />
-              <CaretRight className="separator" weight="bold" />
-              <span className="current-page">{location.pathname.split('/').pop() || 'Dashboard'}</span>
+              {getBreadcrumbItems().map((item, index, array) => (
+                <div key={item.path} className="breadcrumb-item">
+                  {index > 0 && <CaretRight className="separator" weight="bold" />}
+                  <NavLink 
+                    to={item.path}
+                    className={index === array.length - 1 ? 'current-page' : ''}
+                  >
+                    {item.label}
+                  </NavLink>
+                </div>
+              ))}
             </div>
           </div>
           <div className="user-menu">
@@ -201,4 +272,4 @@ const Layout = () => {
   );
 };
 
-export default Layout; 
+export default Layout;

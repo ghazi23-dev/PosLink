@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "email": "admin@poslink.com",
+      "password": "admin123"
+    },
+    {
+      "email": "user@poslink.com",
+      "password": "user123"
+    }
+  ]
+}

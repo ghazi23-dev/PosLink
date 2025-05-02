@@ -35,11 +35,16 @@
 
 .logo {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
-  gap: 12px;
-  background-color: #121926;
+  justify-content: center;
+  /* background-color: #121926; */
+}
+
+.logo-image {
+  width: 137.58px;
+  height: 35px;
+
 }
 
 .logo-icon {
@@ -219,7 +224,7 @@
   color: #1E293B;
 }
 
-.breadcrumb {
+.top-bar .breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -227,19 +232,38 @@
   font-size: 0.875rem;
 }
 
-.breadcrumb .home-icon {
+.top-bar .breadcrumb .home-icon {
   color: #64748B;
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
 }
 
-.breadcrumb .separator {
+.top-bar .breadcrumb .separator {
   color: #64748B;
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
-.breadcrumb .current-page {
+.top-bar .breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar .breadcrumb-item a {
+  color: #64748B;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.top-bar .breadcrumb-item a:hover {
+  color: #1E293B;
+}
+
+.top-bar .breadcrumb-item a.current-page {
   color: #1E293B;
   font-weight: 500;
+  pointer-events: none;
 }
 
 .user-menu {
@@ -298,4 +322,4 @@
   .main-content {
     margin-left: 0;
   }
-} 
+}

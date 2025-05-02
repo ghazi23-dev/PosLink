@@ -7,7 +7,11 @@ import {
   ArrowsDownUp,
   FileXls,
   FilePdf,
-  Calendar
+  Calendar,
+  CaretLeft,
+  CaretRight,
+  X, 
+  Info
 } from '@phosphor-icons/react';
 import { 
   BarChart, 
@@ -40,8 +44,15 @@ const NoDataIcon = () => (
   </svg>
 );
 
+const DAYS_OF_WEEK = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 const Dashboard = () => {
-  const [dateRange, setDateRange] = useState('03/12/2024 08:00AM - 04/12/2024 07:59PM');
+  const [selectedDate, setSelectedDate] = useState('26.04.2025');
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState({ hours: '12', minutes: '00', period: 'AM' });
+  const [selectedRange, setSelectedRange] = useState({ start: null, end: null, type: null });
   const [stats, setStats] = useState({
     turnover: '374.12 DT',
     orders: '32',
@@ -52,6 +63,10 @@ const Dashboard = () => {
   const [salesData, setSalesData] = useState([]);
   const [sortBy, setSortBy] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('Average hour');
+  const [showTurnoverModal, setShowTurnoverModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [showConsumptionModal, setShowConsumptionModal] = useState(false);
+  const [showAvailableCashModal, setShowAvailableCashModal] = useState(false);
 
   const chartData = [
     { month: 'Jan', value: 600 },
@@ -71,6 +86,16 @@ const Dashboard = () => {
     displayValue: item.month === 'Sep' ? `${item.value} TND` : ''
   }));
 
+  const consumptionData = [
+    { id: 1, ingredient: "FLOUR", totalCost: "60.000", unitCost: "15.000", totalQuantity: 4, unit: "g" },
+    { id: 2, ingredient: "THON", totalCost: "100.000", unitCost: "20.000", totalQuantity: 5, unit: "g" },
+    { id: 3, ingredient: "EGGS", totalCost: "50.000", unitCost: "10.000", totalQuantity: 5, unit: "g" },
+    { id: 4, ingredient: "TOMATOES", totalCost: "17.000", unitCost: "17.000", totalQuantity: 1, unit: "g" },
+    { id: 5, ingredient: "PEPPERS", totalCost: "32.000", unitCost: "16.000", totalQuantity: 2, unit: "g" },
+    { id: 6, ingredient: "ONIONS", totalCost: "65.000", unitCost: "13.000", totalQuantity: 5, unit: "g" },
+    { id: 7, ingredient: "CHICKEN", totalCost: "40.000", unitCost: "20.000", totalQuantity: 2, unit: "g" },
+  ];
+
   const paymentMethodData = [
     { name: 'Cash', value: 576, color: '#FF5733' },
     { name: 'Check', value: 250, color: '#22C55E' },
@@ -84,6 +109,20 @@ const Dashboard = () => {
     { name: 'Waiter2', value: 200, color: '#1E293B' },
     { name: 'Waiter3', value: 200, color: '#7C3AED' },
     { name: 'Waiter4', value: 50, color: '#F59E0B' }
+  ];
+
+  const turnoverPieData = [
+    { name: 'Net Turnover', value: 270, color: '#22C55E' },
+    { name: 'TVA', value: 200, color: '#0F172A' },
+    { name: 'Discounts', value: 136, color: '#F59E0B' },
+    { name: 'Offers', value: 394, color: '#FF5733' }
+  ];
+
+  const availableCashData = [
+    { id: 1, category: "Cash Revenue", amount: "750 DT" },
+    { id: 2, category: "Expenses", amount: "900 DT" },
+    { id: 3, category: "Salary Payables", amount: "100 DT" },
+    { id: 4, category: "Fond de caisse", amount: "50 DT" },
   ];
 
   useEffect(() => {
@@ -237,20 +276,422 @@ const Dashboard = () => {
     }
   };
 
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    const days = [];
+    const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Adjust for Monday start
+    
+    // Add previous month's days
+    for (let i = 0; i < startDay; i++) {
+      const prevDate = new Date(year, month, -startDay + i + 1);
+      days.push({ date: prevDate, isCurrentMonth: false });
+    }
+    
+    // Add current month's days
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+    }
+    
+    // Add next month's days
+    const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+    }
+    
+    return days;
+  };
+
+  const handleQuickSelect = (option) => {
+    const now = new Date();
+    let start, end, type;
+    
+    switch (option) {
+      case 'today':
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        end = start;
+        type = 'today';
+        break;
+      case 'lastWeek':
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        start = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 6);
+        type = 'lastWeek';
+        break;
+      case 'lastMonth':
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        start = new Date(end.getFullYear(), end.getMonth() - 1, end.getDate() + 1);
+        type = 'lastMonth';
+        break;
+      default:
+        start = now;
+        end = now;
+        type = 'custom';
+    }
+    
+    setSelectedRange({ start, end, type });
+    setSelectedDate(formatDate(end)); // Set the visible date to the end of range
+  };
+
+  const isDateInRange = (date) => {
+    if (!selectedRange.start || !selectedRange.end) return false;
+    
+    const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const startDate = new Date(selectedRange.start.getFullYear(), selectedRange.start.getMonth(), selectedRange.start.getDate()).getTime();
+    const endDate = new Date(selectedRange.end.getFullYear(), selectedRange.end.getMonth(), selectedRange.end.getDate()).getTime();
+    
+    return checkDate >= startDate && checkDate <= endDate;
+  };
+
+  const handleDateSelect = (date) => {
+    const { hours, minutes, period } = selectedTime;
+    const newDate = new Date(date);
+    newDate.setHours(
+      period === 'PM' ? (parseInt(hours) % 12) + 12 : parseInt(hours) % 12,
+      parseInt(minutes)
+    );
+    
+    // For custom range selection
+    if (selectedRange.type === 'custom') {
+      if (!selectedRange.start || (selectedRange.start && selectedRange.end)) {
+        // Start new range
+        setSelectedRange({ start: newDate, end: newDate, type: 'custom' });
+      } else {
+        // Complete the range
+        const start = selectedRange.start;
+        const end = newDate;
+        if (end < start) {
+          setSelectedRange({ start: end, end: start, type: 'custom' });
+        } else {
+          setSelectedRange({ start, end, type: 'custom' });
+        }
+      }
+    } else {
+      // Single date selection
+      setSelectedRange({ start: newDate, end: newDate, type: 'single' });
+    }
+    
+    setSelectedDate(formatDate(newDate));
+  };
+
+  const handleTimeChange = (type, value) => {
+    setSelectedTime(prev => ({ ...prev, [type]: value }));
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).replace(/\//g, '.');
+  };
+
+  const toggleTurnoverModal = () => {
+    setShowTurnoverModal(!showTurnoverModal);
+  };
+
+  const toggleConsumptionModal = () => {
+    setShowConsumptionModal(!showConsumptionModal);
+  };
+
+  const toggleAvailableCashModal = () => {
+    setShowAvailableCashModal(!showAvailableCashModal);
+  };
+
+  const TurnoverModal = () => {
+    if (!showTurnoverModal) return null;
+    
+    return (
+      <div className="modal-overlay" onClick={toggleTurnoverModal}>
+        <div className="modal-content turnover-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">
+              <span>Gross Turnover</span>
+              <span className="info-icon">
+                <Info size={25} weight="bold" />
+              </span>
+            </div>
+            <button className="modal-close" onClick={toggleTurnoverModal}>
+              <X size={24} />
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="modal-chart-container">
+              <ResponsiveContainer width="70%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={turnoverPieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={140}
+                    paddingAngle={2}
+                    dataKey="value"
+                    labelLine={false}
+                  >
+                    {turnoverPieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="modal-legend">
+                {turnoverPieData.map((item, index) => (
+                  <div key={`legend-${index}`} className="modal-legend-item">
+                    <div className="legend-color" style={{ backgroundColor: item.color }} />
+                    <span className="legend-label">{item.name}</span>
+                    <span className="legend-value">{item.value} TND</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const OrdersModal = () => {
+    if (!showOrdersModal) return null;
+    
+    return (
+      <div className="modal-overlay" onClick={() => setShowOrdersModal(false)}>
+        <div className="modal-content orders-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">
+              <span>Orders</span>
+              <span className="info-icon">
+              <Info size={25} weight="bold" />
+              </span>
+            </div>
+            <button className="modal-close" onClick={() => setShowOrdersModal(false)}>
+              <X size={24} />
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="orders-stats">
+              <div className="orders-stat-item selected">
+                <h3>Total orders</h3>
+                <p className="orders-stat-value">119</p>
+              </div>
+              <div className="orders-stat-item unselected">
+                <h3>Average basket</h3>
+                <p className="orders-stat-value">35.202</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ConsumptionModal = () => {
+    if (!showConsumptionModal) return null;
+    
+    return (
+      <div className="modal-overlay" onClick={toggleConsumptionModal}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">
+              <span>Total Consumption</span>
+            </div>
+            <button className="modal-close" onClick={toggleConsumptionModal}>
+              <X size={24} />
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="table-container">
+              <table className="sales-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Ingredients</th>
+                    <th>Total Cost</th>
+                    <th>Unit Cost</th>
+                    <th>Total Quantity</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {consumptionData.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.ingredient}</td>
+                      <td>{item.totalCost}</td>
+                      <td>{item.unitCost}</td>
+                      <td>{item.totalQuantity}</td>
+                      <td>{item.unit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-footer">
+              <button className="see-more-btn">See More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const AvailableCashModal = () => {
+    if (!showAvailableCashModal) return null;
+    
+    return (
+      <div className="modal-overlay" onClick={toggleAvailableCashModal}>
+        <div className="modal-content available-cash-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">
+              <span>Available Cash</span>
+              <span className="info-icon">
+              <Info size={25} weight="bold" />
+              </span>
+            </div>
+            <button className="modal-close" onClick={toggleAvailableCashModal}>
+              <X size={24} />
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="cash-breakdown">
+              {availableCashData.map((item) => (
+                <div 
+                  key={item.id} 
+                  className={`cash-item ${item.id % 2 === 0 ? 'even' : 'odd'}`}
+                >
+                  <span className="cash-category">{item.category}</span>
+                  <span className="cash-amount">{item.amount}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <div className="period-section">
           <h2>Period</h2>
           <p className="period-description">Choose the date range to show information on the dashboard</p>
-          <div className="date-picker">
-            <input 
-              type="text" 
-              value={dateRange} 
-              readOnly
-              className="date-input"
-            />
-            <Calendar className="calendar-icon" weight="fill" />
+          <div className="date-picker-container">
+            <div className="select-date" onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}>
+              <Calendar size={20} weight="fill" className="calendar-icon" />
+              <span className="date-text">Select a date</span>
+              <span className="selected-date">{selectedDate}</span>
+            </div>
+
+            {isDatePickerOpen && (
+              <div className="date-picker-dropdown">
+                <div className="quick-select">
+                  <button 
+                    className={`${selectedRange.type === 'today' ? 'active' : ''} today-btn`}
+                    onClick={() => handleQuickSelect('today')}
+                  >
+                    Today
+                  </button>
+                  <button 
+                    className={selectedRange.type === 'lastWeek' ? 'active' : ''}
+                    onClick={() => handleQuickSelect('lastWeek')}
+                  >
+                    Last week
+                  </button>
+                  <button 
+                    className={selectedRange.type === 'lastMonth' ? 'active' : ''}
+                    onClick={() => handleQuickSelect('lastMonth')}
+                  >
+                    Last month
+                  </button>
+                  <button 
+                    className={selectedRange.type === 'custom' ? 'active' : ''}
+                    onClick={() => setSelectedRange({ start: null, end: null, type: 'custom' })}
+                  >
+                    Customized range
+                  </button>
+                </div>
+
+                <div className="calendar-section">
+                  <div className="calendar-header">
+                    <button 
+                      className="nav-btn"
+                      onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
+                    >
+                      <CaretLeft weight="bold" />
+                    </button>
+                    <span className="current-month">
+                      {MONTHS[currentDate.getMonth()]}
+                    </span>
+                    <button 
+                      className="nav-btn"
+                      onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
+                    >
+                      <CaretRight weight="bold" />
+                    </button>
+                  </div>
+
+                  <div className="calendar-grid">
+                    {DAYS_OF_WEEK.map(day => (
+                      <div key={day} className="calendar-day-header">{day}</div>
+                    ))}
+                    {generateCalendarDays().map(({ date, isCurrentMonth }, index) => (
+                      <button
+                        key={index}
+                        className={`calendar-day 
+                          ${!isCurrentMonth ? 'other-month' : ''} 
+                          ${isDateInRange(date) ? 'in-range' : ''} 
+                          ${formatDate(date) === selectedDate ? 'selected' : ''}
+                          ${selectedRange.start && formatDate(date) === formatDate(selectedRange.start) ? 'range-start' : ''}
+                          ${selectedRange.end && formatDate(date) === formatDate(selectedRange.end) ? 'range-end' : ''}
+                        `}
+                        onClick={() => handleDateSelect(date)}
+                      >
+                        {date.getDate()}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="time-selector">
+                    <span>Time:</span>
+                    <div className="time-inputs">
+                      <select 
+                        value={selectedTime.hours}
+                        onChange={(e) => handleTimeChange('hours', e.target.value)}
+                      >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(hour => (
+                          <option key={hour} value={hour.toString().padStart(2, '0')}>
+                            {hour.toString().padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                      <span>:</span>
+                      <select 
+                        value={selectedTime.minutes}
+                        onChange={(e) => handleTimeChange('minutes', e.target.value)}
+                      >
+                        {Array.from({ length: 60 }, (_, i) => i).map(minute => (
+                          <option key={minute} value={minute.toString().padStart(2, '0')}>
+                            {minute.toString().padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                      <select 
+                        value={selectedTime.period}
+                        onChange={(e) => handleTimeChange('period', e.target.value)}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                    <button className="apply-btn" onClick={() => setIsDatePickerOpen(false)}>Apply</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="export-section">
@@ -269,43 +710,43 @@ const Dashboard = () => {
       </div>
 
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card" onClick={toggleTurnoverModal}>
+          <div className="stat-icon">
+            <ArrowsClockwise size={28} />
+          </div>
           <div className="stat-content">
-            <h3>
-              <ArrowsClockwise weight="fill" className="stat-icon" />
-              Turnover
-            </h3>
-            <p className="stat-value">{stats.turnover}</p>
+            <h3>Turnover</h3>
+            <p className="stat-value">374.12<span className="unit">DT</span></p>
           </div>
         </div>
         
-        <div className="stat-card">
+        <div className="stat-card" onClick={() => setShowOrdersModal(true)}>
+          <div className="stat-icon">
+            <ClipboardText size={28} />
+          </div>
           <div className="stat-content">
-            <h3>
-              <ClipboardText weight="fill" className="stat-icon" />
-              Number of orders
-            </h3>
-            <p className="stat-value">{stats.orders}</p>
+            <h3>Number of orders</h3>
+            <p className="stat-value">32</p>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" onClick={toggleConsumptionModal}>
+          <div className="stat-icon">
+            <Coins size={28} />
+          </div>
           <div className="stat-content">
-            <h3>
-              <Coins weight="fill" className="stat-icon" />
-              Total Consumption
-            </h3>
-            <p className="stat-value">{stats.consumption}</p>
+            <h3>Total Consumption</h3>
+            <p className="stat-value">500<span className="unit">DT</span></p>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" onClick={toggleAvailableCashModal}>
+          <div className="stat-icon">
+            <CurrencyCircleDollar size={28} />
+          </div>
           <div className="stat-content">
-            <h3>
-              <CurrencyCircleDollar weight="fill" className="stat-icon" />
-              Available Cash
-            </h3>
-            <p className="stat-value">{stats.availableCash}</p>
+            <h3>Available Cash</h3>
+            <p className="stat-value">681.3<span className="unit">DT</span></p>
           </div>
         </div>
       </div>
@@ -382,7 +823,7 @@ const Dashboard = () => {
             </button>
           </div>
           <div className="chart-date-range">
-            {dateRange}
+            {selectedDate}
           </div>
         </div>
         <div className="chart-container">
@@ -431,7 +872,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="chart-section empty-section">
+      {/* <div className="chart-section empty-section">
         <div className="chart-header">
           <div className="chart-title">
             <h2>Empty Section</h2>
@@ -463,7 +904,7 @@ const Dashboard = () => {
             </button>
           </div>
           <div className="chart-date-range">
-            {dateRange}
+            {selectedDate}
           </div>
         </div>
         <div className="chart-container">
@@ -472,7 +913,7 @@ const Dashboard = () => {
             <p>No data was found</p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="charts-row">
         <div className="chart-section pie-chart">
@@ -493,8 +934,13 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <TurnoverModal />
+      <OrdersModal />
+      <ConsumptionModal />
+      <AvailableCashModal />
     </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
