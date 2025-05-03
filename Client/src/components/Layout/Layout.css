@@ -298,6 +298,12 @@
   overflow-y: auto;
 }
 
+.breadcrumb .parent-label {
+  color: #666;
+  cursor: default;
+  text-decoration: none;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;

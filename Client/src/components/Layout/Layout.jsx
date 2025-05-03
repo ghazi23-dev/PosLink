@@ -27,6 +27,9 @@ const Layout = () => {
 
   // Navigation map for breadcrumb labels
   const navigationMap = {
+    users: {
+      label: 'Users Management'
+    },
     products: {
       label: 'Product Management',
       children: {
@@ -244,13 +247,17 @@ const Layout = () => {
               <House className="home-icon" weight="fill" />
               {getBreadcrumbItems().map((item, index, array) => (
                 <div key={item.path} className="breadcrumb-item">
-                  {index > 0 && <CaretRight className="separator" weight="bold" />}
-                  <NavLink 
-                    to={item.path}
-                    className={index === array.length - 1 ? 'current-page' : ''}
-                  >
-                    {item.label}
-                  </NavLink>
+                  {index > 0 && <CaretRight className="separator" weight="bold" style={{ color: 'red' , fontSize: '1.0rem' }} />}
+                  {item.path === '/' || (index === array.length - 1) ? (
+                    <NavLink 
+                      to={item.path}
+                      className={index === array.length - 1 ? 'current-page' : ''}
+                    >
+                      {item.label}
+                    </NavLink>
+                  ) : (
+                    <span className="parent-label">{item.label}</span>
+                  )}
                 </div>
               ))}
             </div>
