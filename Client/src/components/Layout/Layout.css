@@ -120,8 +120,12 @@
 .arrow-icon {
   margin-left: auto;
   font-size: 1rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
   color: inherit;
+}
+
+.menu-group.expanded .arrow-icon {
+  transform: rotate(0deg);
 }
 
 .nav-link:hover, 
@@ -144,10 +148,6 @@
 .menu-group {
   display: flex;
   flex-direction: column;
-}
-
-.menu-group.expanded .arrow-icon {
-  transform: rotate(90deg);
 }
 
 .sub-menu {

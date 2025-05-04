@@ -1,8 +1,23 @@
+/* Global input styles */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 0 0 1px #E2E8F0 !important;
+  background: #FFFFFF !important;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: #94A3B8 !important;
+}
+
 .products-container {
   padding: 24px;
-  height: 100%;
+  height: calc(100vh - 120px);
   width: 100%;
-  background-color: #ffffff;
   display: flex;
   flex-direction: column;
 }
@@ -13,6 +28,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
 .search-box {
@@ -85,17 +101,41 @@
 /* Table Container */
 .table-container {
   width: 100%;
-  height: 100%;
-  background: #ffffff;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
-  overflow: auto;
+  background: #ffffff;
+  margin-bottom: 24px;
 }
 
 .data-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #ffffff;
+}
+
+.data-table thead tr th {
+  background: #ffffff;
+  box-shadow: 0 1px 0 0 #E2E8F0;
+}
+
+.data-table tbody {
+  position: relative;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Ensure the last row has proper padding */
+.data-table tbody tr:last-child td {
+  padding-bottom: 16px;
 }
 
 /* Column widths */
@@ -123,7 +163,8 @@
 .data-table th:nth-child(5),
 .data-table td:nth-child(5) {
   width: 80px;
-  text-align: center;
+  text-align: right;
+  padding-right: 24px;
 }
 
 .data-table th {
@@ -141,6 +182,16 @@
   z-index: 1;
 }
 
+/* Specific alignment for the ACTIONS column header */
+.data-table th:last-child {
+  text-align: right;
+  padding-right: 24px;
+}
+
+.data-table th:last-child .sortable {
+  justify-content: flex-end;
+}
+
 .data-table th:first-child {
   border-top-left-radius: 8px;
 }
@@ -156,7 +207,7 @@
   gap: 4px;
 }
 
-.sort-icon {
+.sort-icons {
   color: #DC2626;
   font-size: 14px;
 }
@@ -170,10 +221,6 @@
   vertical-align: middle;
   text-align: left;
   transition: background-color 0.2s ease;
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
 }
 
 .data-table tr:hover td {
@@ -196,15 +243,7 @@
 /* Action Menu */
 .action-menu {
   position: relative;
-  display: flex;
-  justify-content: center;
-}
-
-.action-menu.bottom .action-menu-dropdown {
-  top: auto;
-  bottom: 100%;
-  margin-top: 0;
-  margin-bottom: 4px;
+  display: inline-block;
 }
 
 .action-menu-trigger {
@@ -219,21 +258,12 @@
   transform: rotate(90deg);
 }
 
-.action-menu-trigger:hover {
-  background: rgba(220, 38, 38, 0.1);
-}
-
 .action-menu-trigger svg {
   color: #DC2626;
 }
 
-.action-menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 998;
+.action-menu-trigger:hover {
+  background: rgba(220, 38, 38, 0.1);
 }
 
 .action-menu-dropdown {
@@ -244,17 +274,14 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   z-index: 999;
-  min-width: 120px;
+  min-width: 140px;
   margin-top: 4px;
   border: 1px solid #E2E8F0;
   overflow: hidden;
 }
 
-.action-menu-dropdown button {
+.action-menu-item {
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 8px 16px;
   background: none;
   border: none;
@@ -262,27 +289,56 @@
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: left;
 }
 
-.action-menu-dropdown button:hover {
+.action-menu-item:hover {
   background: #F8FAFC;
 }
 
-.action-menu-dropdown button.delete {
-  color: #DC2626;
-}
-
-.action-menu-dropdown button.delete:hover {
-  background: #FEE2E2;
-}
-
-.action-menu-dropdown button:not(:last-child) {
+.action-menu-item:not(:last-child) {
   border-bottom: 1px solid #E2E8F0;
 }
 
-.action-menu-dropdown button svg {
-  width: 16px;
-  height: 16px;
+.action-menu-item.delete {
+  color: #DC2626;
+}
+
+.action-menu-item.delete:hover {
+  background: #FEE2E2;
+}
+
+/* Ensure the dropdown is above other elements */
+.data-table td {
+  position: relative;
+}
+
+/* Align the actions column to the center */
+.data-table th:last-child,
+.data-table td:last-child {
+  text-align: center;
+  padding-right: 24px;
+  padding-left: 24px;
+}
+
+/* Status badge styles */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background-color: #DEF7EC;
+  color: #03543E;
+}
+
+.status-badge.inactive {
+  background-color: #FEE2E2;
+  color: #991B1B;
 }
 
 /* Preview Modal */
@@ -332,7 +388,7 @@
 }
 
 .preview-modal .preview-value.inactive {
-  color: #DC2626;
+  color: #DC2626 !important;
 }
 
 /* Product Form Modal */
@@ -365,12 +421,24 @@
   transition: all 0.2s ease;
 }
 
-.product-form-modal input:focus,
-.product-form-modal select:focus,
-.product-form-modal textarea:focus {
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible,
+.product-form-modal input:focus-visible,
+.product-form-modal select:focus-visible,
+.product-form-modal textarea:focus-visible {
   outline: none;
+  border-color: #E2E8F0;
+  box-shadow: 0 0 0 1px #E2E8F0;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover,
+.product-form-modal input:hover,
+.product-form-modal select:hover,
+.product-form-modal textarea:hover {
   border-color: #94A3B8;
-  background: #FFFFFF;
 }
 
 .product-form-modal input::placeholder,
@@ -625,11 +693,11 @@
 }
 
 .radio-option input[type="radio"][value="No"]:checked {
-  border-color: #CBD5E1;
+  border-color: #DC2626;
 }
 
 .radio-option input[type="radio"][value="No"]:checked::after {
-  background-color: #CBD5E1;
+  background-color: #DC2626;
 }
 
 /* Add hover effect */
@@ -644,12 +712,52 @@
 }
 
 /* Required asterisk styling */
+.form-group .required,
 .radio-label .required {
-  color: #DC2626;
+  color: #64748B;
   margin-left: 2px;
 }
 
 /* Form group spacing for radio buttons */
 .form-group:has(.radio-label) {
   margin-bottom: 24px;
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 0;
+  margin-top: 16px;
+}
+
+.pagination button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover {
+  background: #F1F5F9;
+}
+
+.pagination button.active {
+  background: #1E293B;
+  color: #ffffff;
+  border-color: #1E293B;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

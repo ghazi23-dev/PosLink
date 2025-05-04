@@ -92,43 +92,66 @@ const PreviewModal = ({ isOpen, onClose, product }) => {
 
 const ActionMenu = ({ onPreview, onEdit, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBottom, setIsBottom] = useState(false);
   const menuRef = useRef(null);
 
+  // Close menu when clicking outside
   useEffect(() => {
-    if (isOpen && menuRef.current) {
-      const menuRect = menuRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      setIsBottom(menuRect.bottom + 150 > windowHeight);
-    }
-  }, [isOpen]);
-  
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className={`action-menu ${isBottom ? 'bottom' : ''}`} ref={menuRef}>
+    <div className="action-menu" ref={menuRef}>
       <button 
         className="action-menu-trigger"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
       >
         <DotsThree size={20} weight="bold" />
       </button>
       {isOpen && (
-        <>
-          <div className="action-menu-overlay" onClick={() => setIsOpen(false)} />
-          <div className="action-menu-dropdown">
-            <button onClick={() => { onPreview(); setIsOpen(false); }}>
-              <Eye weight="bold" />
-              Preview
-            </button>
-            <button onClick={() => { onEdit(); setIsOpen(false); }}>
-              <PencilSimple weight="bold" />
-              Edit product
-            </button>
-            <button className="delete" onClick={() => { onDelete(); setIsOpen(false); }}>
-              <Trash weight="bold" />
-              Delete
-            </button>
-          </div>
-        </>
+        <div className="action-menu-dropdown">
+          <button 
+            className="action-menu-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview();
+              setIsOpen(false);
+            }}
+          >
+            Preview
+          </button>
+          <button 
+            className="action-menu-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+              setIsOpen(false);
+            }}
+          >
+            Edit product
+          </button>
+          <button 
+            className="action-menu-item delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+              setIsOpen(false);
+            }}
+          >
+            Delete
+          </button>
+        </div>
       )}
     </div>
   );
@@ -322,7 +345,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add'
               Active <span className="required">*</span>
             </label>
             <div className="radio-group">
-              <label className="radio-option">
+              <label className="radio-option" >
                 <input
                   type="radio"
                   name="active"
@@ -447,6 +470,8 @@ const ProductsList = () => {
   const [previewModalState, setPreviewModalState] = useState({ isOpen: false, product: null });
   const [productModalState, setProductModalState] = useState({ isOpen: false, mode: 'add', productData: null });
   const [selectedFilter, setSelectedFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage =9;
 
   const filterOptions = [
     { value: 'All', label: 'All' },
@@ -455,6 +480,29 @@ const ProductsList = () => {
     { value: 'Desserts', label: 'Desserts' },
     { value: 'Appetizers', label: 'Appetizers' }
   ];
+
+  // Filter products first
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.subCategory.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedFilter === 'All' || product.category === selectedFilter;
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  // Then paginate the filtered results
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const handlePreview = (product) => {
     setPreviewModalState({ isOpen: true, product });
@@ -501,23 +549,12 @@ const ProductsList = () => {
     }
   };
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.subCategory.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = selectedFilter === 'All' || product.category === selectedFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
-
   const handleFilterSelect = (filter) => {
     setSelectedFilter(filter);
     setIsFilterOpen(false);
   };
 
-          return (
+  return (
     <div className="products-container">
       {/* <div className="breadcrumb">
         <a href="#">Product Management</a>
@@ -575,42 +612,29 @@ const ProductsList = () => {
             <tr>
               <th>
                 <div className="sortable">
-                  PRODUCT NAME <FontAwesomeIcon icon={faArrowDownShortWide} className="sort-icon" />
+                  PRODUCT NAME <FontAwesomeIcon icon={faArrowDownShortWide} className="sort-icons"/>
                 </div>
               </th>
-              <th>
-                <div className="sortable">
-                  SUB-CATEGORY
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  CATEGORY
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  PRICE
-                </div>
-              </th>
-              <th>ACTIONS</th>
+              <th>SUB-CATEGORY</th>
+              <th>CATEGORY</th>
+              <th>PRICE (DT)</th>
+              {/* <th>TVA PERCENTAGE</th> */}
+              <th style={{ width: '60px' }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map(product => (
+            {paginatedProducts.map(product => (
               <tr key={product.id}>
                 <td>{product.name}</td>
                 <td>{product.subCategory}</td>
                 <td>{product.category}</td>
-                <td>
-                  <span className="price">
-                    {product.price}<span className="price-currency">DT</span>
-                  </span>
-                </td>
+              
+                <td>{product.price}</td>
+                {/* <td>{product.tvaPercentage || '-'}</td> */}
                 <td>
                   <ActionMenu
                     onPreview={() => handlePreview(product)}
-                    onEdit={() => handleEdit(product.id)}
+                    onEdit={() => handleEditProduct(product.id)}
                     onDelete={() => handleDelete(product.id)}
                   />
                 </td>
@@ -618,6 +642,34 @@ const ProductsList = () => {
             ))}
           </tbody>
         </table>
+        
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              ‹
+            </button>
+            
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageChange(index + 1)}
+                className={currentPage === index + 1 ? 'active' : ''}
+              >
+                {index + 1}
+              </button>
+            ))}
+            
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
 
       <ProductFormModal
@@ -633,8 +685,8 @@ const ProductsList = () => {
         onClose={closePreviewModal}
         product={previewModalState.product}
       />
-                    </div>
-          );
+    </div>
+  );
 };
 
 export default ProductsList;

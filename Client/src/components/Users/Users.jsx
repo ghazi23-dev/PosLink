@@ -30,13 +30,22 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' })
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (initialData) {
+    if (mode === 'edit' && initialData) {
       setFormData({
-        ...initialData,
-        password: initialData.password || '' // Keep password if exists, empty if new user
+        name: initialData.name || '',
+        email: initialData.email || '',
+        password: '', // We don't show the existing password for security
+        role: initialData.role || 'user'
+      });
+    } else if (mode === 'add') {
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'user'
       });
     }
-  }, [initialData]);
+  }, [initialData, mode]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -59,14 +68,18 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' })
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      // If editing and password is empty, send the form data without the password
+      if (mode === 'edit' && !formData.password) {
+        const dataWithoutPassword = {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role
+        };
+        onSubmit(dataWithoutPassword);
+      } else {
+        onSubmit(formData);
+      }
       onClose();
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-        role: 'user'
-      });
     }
   };
 
@@ -90,7 +103,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' })
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>{mode === 'add' ? 'Add New User' : 'Update User'}</h3>
+          <h3>{mode === 'add' ? 'Add New User' : 'Edit User'}</h3>
           <button className="close-btn" onClick={onClose}>
             <X weight="bold" />
           </button>
@@ -176,7 +189,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' })
 };
 
 // Role Form Modal Component
-const RoleFormModal = ({ isOpen, onClose, onSubmit }) => {
+const RoleFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' }) => {
   const [formData, setFormData] = useState({
     name: '',
     permissions: {
@@ -270,13 +283,50 @@ const RoleFormModal = ({ isOpen, onClose, onSubmit }) => {
     }));
   };
 
+  useEffect(() => {
+    if (initialData && mode === 'edit') {
+      // Transform the stored permissions format back to form format
+      const transformedPermissions = {
+        tableManagement: {
+          enabled: initialData.permissions.others || false,
+          deletion: false,
+          cancelation: false,
+          addSpace: false,
+          creation: false,
+          assignServer: false
+        },
+        menuConfiguration: {
+          enabled: initialData.permissions.addMenu || false,
+          addCategory: false,
+          addSubCategory: false,
+          addProduct: false,
+          favorites: false,
+          ingredientCreation: false,
+          deletion: false,
+          modification: false
+        },
+        cashDrawer: {
+          enabled: initialData.permissions.cashdrawer || false
+        },
+        payment: {
+          enabled: initialData.permissions.others || false
+        }
+      };
+
+      setFormData({
+        ...initialData,
+        permissions: transformedPermissions
+      });
+    }
+  }, [initialData, mode]);
+
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>Add Role</h3>
+          <h3>{mode === 'add' ? 'Add New Role' : 'Update Role'}</h3>
           <button className="close-btn" onClick={onClose}>
             <X weight="bold" />
           </button>
@@ -506,7 +556,7 @@ const RoleFormModal = ({ isOpen, onClose, onSubmit }) => {
             onClick={() => onSubmit(formData)}
             disabled={!formData.name.trim()}
           >
-            Add
+            {mode === 'add' ? 'Add Role' : 'Update Role'}
           </button>
         </div>
       </div>
@@ -516,39 +566,58 @@ const RoleFormModal = ({ isOpen, onClose, onSubmit }) => {
 
 const ActionMenu = ({ onEdit, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBottom, setIsBottom] = useState(false);
   const menuRef = useRef(null);
 
+  // Close menu when clicking outside
   useEffect(() => {
-    if (isOpen && menuRef.current) {
-      const menuRect = menuRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      setIsBottom(menuRect.bottom + 150 > windowHeight);
-    }
-  }, [isOpen]);
-  
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className={`action-menu ${isBottom ? 'bottom' : ''}`} ref={menuRef}>
+    <div className="action-menu" ref={menuRef}>
       <button 
         className="action-menu-trigger"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
       >
         <DotsThree size={20} weight="bold" />
       </button>
       {isOpen && (
-        <>
-          <div className="action-menu-overlay" onClick={() => setIsOpen(false)} />
-          <div className="action-menu-dropdown">
-            <button onClick={() => { onEdit(); setIsOpen(false); }}>
-              <PencilSimple weight="bold" />
-              Edit
-            </button>
-            <button onClick={() => { onDelete(); setIsOpen(false); }}>
-              <Trash weight="bold" />
-              Delete
-            </button>
-          </div>
-        </>
+        <div className="action-menu-dropdown">
+          <button 
+            className="action-menu-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+              setIsOpen(false);
+            }}
+          >
+            <PencilSimple weight="bold" />
+            Edit
+          </button>
+          <button 
+            className="action-menu-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+              setIsOpen(false);
+            }}
+          >
+            <Trash weight="bold" />
+            Delete
+          </button>
+        </div>
       )}
     </div>
   );
@@ -566,7 +635,17 @@ const Users = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const itemsPerPage = 10;
 
-  const filterOptions = ['All', 'Administrator', 'Manager', 'Waiter', 'Cashier', 'Chef'];
+  const filterOptions = [
+    'All',
+    'Administrator',
+    'Manager',
+    'Waiter',
+    'Cashier',
+    'Chef',
+    'Barman',
+    'Moderator',
+    'Joker'
+  ];
 
   useEffect(() => {
     const initializeUsers = async () => {
@@ -665,24 +744,30 @@ const Users = () => {
   // User CRUD operations
   const handleAddUser = (newUser) => {
     const uniqueId = generateUniqueId(users);
-    const userToAdd = { ...newUser, id: uniqueId };
+    const userToAdd = { 
+      ...newUser, 
+      id: uniqueId,
+      dateCreated: new Date().toLocaleDateString('en-GB')
+    };
     const updatedUsers = [...users, userToAdd];
     setUsers(updatedUsers);
     saveToLocalStorage('users', updatedUsers);
   };
 
   const handleUpdateUser = (updatedUser) => {
-    if (!updatedUser.id) return;
     const updatedUsers = users.map(user => 
-      user.id === updatedUser.id ? { ...updatedUser } : user
+      user.id === updatedUser.id ? {
+        ...user,
+        ...updatedUser,
+        password: updatedUser.password || user.password, // Keep existing password if not changed
+        dateCreated: user.dateCreated // Preserve the original creation date
+      } : user
     );
     setUsers(updatedUsers);
     saveToLocalStorage('users', updatedUsers);
   };
 
   const handleDeleteUser = (userId) => {
-    if (!userId) return;
-    
     if (window.confirm('Are you sure you want to delete this user?')) {
       const updatedUsers = users.filter(user => user.id !== userId);
       setUsers(updatedUsers);
@@ -763,8 +848,12 @@ const Users = () => {
     if (userModalState.mode === 'add') {
       handleAddUser(formData);
     } else {
-      handleUpdateUser({ ...formData, id: userModalState.userData.id });
+      handleUpdateUser({
+        ...formData,
+        id: userModalState.userData.id
+      });
     }
+    closeUserModal();
   };
 
   const handleRoleModalSubmit = (formData) => {
@@ -780,15 +869,15 @@ const Users = () => {
     setIsFilterOpen(false);
   };
 
-  // Update the filtered users to include role filtering
+  // Update the filtered users logic
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = selectedFilter === 'All' || user.role === selectedFilter.toLowerCase();
+    const matchesRole = selectedFilter === 'All' || user.role === selectedFilter;
     return matchesSearch && matchesRole;
   });
 
-  // Filtering and pagination for Roles
+  // Filtering for Roles (search only, no role filter)
   const filteredRoles = roles.filter(role => 
     role.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -843,30 +932,31 @@ const Users = () => {
         </div>
         
         <div className="action-buttons-container">
-          <div className="filter-dropdown">
-            <button className="filter-btn" onClick={() => setIsFilterOpen(!isFilterOpen)}>
-              <FunnelSimple weight="bold" />
-              Filter
-            </button>
-            {isFilterOpen && (
-              <div className="filter-menu">
-                {filterOptions.map((option) => (
-                  <div 
-                    key={option} 
-                    className={`filter-option ${selectedFilter === option ? 'selected' : ''}`}
-                    onClick={() => handleFilterSelect(option)}
-                  >
-                    {selectedFilter === option && <Check weight="bold" className="check-icon" />}
-                    {option}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {activeTab === 'users' && (
+            <div className="filter-dropdown">
+              <button className="filter-btn" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                <FunnelSimple weight="bold" />
+                Filter
+              </button>
+              {isFilterOpen && (
+                <div className="filter-menu">
+                  {filterOptions.map((option) => (
+                    <div 
+                      key={option} 
+                      className={`filter-option ${selectedFilter === option ? 'selected' : ''}`}
+                      onClick={() => handleFilterSelect(option)}
+                    >
+                      {selectedFilter === option && <Check weight="bold" className="check-icon" />}
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {activeTab === 'users' ? (
             <button className="add-btn" onClick={() => openUserModal('add')}>
-              
-            + Add
+              + Add
             </button>
           ) : (
             <button className="add-btn" onClick={() => openRoleModal('add')}>
@@ -916,8 +1006,18 @@ const Users = () => {
                   </td>
                   <td>
                     <ActionMenu
-                      onEdit={() => openUserModal('edit', user)}
-                      onDelete={() => handleDeleteUser(user.id)}
+                      onEdit={() => {
+                        console.log('Edit clicked for user:', user); // Add logging
+                        setUserModalState({
+                          isOpen: true,
+                          mode: 'edit',
+                          userData: user
+                        });
+                      }}
+                      onDelete={() => {
+                        console.log('Delete clicked for user:', user); // Add logging
+                        handleDeleteUser(user.id);
+                      }}
                     />
                   </td>
                 </tr>
@@ -975,32 +1075,27 @@ const Users = () => {
         totalUserPages > 1 && (
           <div className="pagination">
             <button 
-              className="pagination-btn"
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             >
-              Previous
+              ‹
             </button>
-            {Array.from({ length: totalUserPages }, (_, i) => i + 1)
-              .filter(page => page === 1 || page === totalUserPages || (page >= currentPage - 1 && page <= currentPage + 1))
-              .map((page, i, arr) => (
-                <>
-                  {i > 0 && arr[i-1] !== page - 1 && <span className="pagination-ellipsis">...</span>}
-                  <button
-                    key={page}
-                    className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                </>
-              ))}
+            
+            {[...Array(totalUserPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={currentPage === index + 1 ? 'active' : ''}
+              >
+                {index + 1}
+              </button>
+            ))}
+            
             <button 
-              className="pagination-btn"
+              onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalUserPages}
-              onClick={() => setCurrentPage(prev => Math.min(totalUserPages, prev + 1))}
             >
-              Next
+              ›
             </button>
           </div>
         )
@@ -1008,32 +1103,27 @@ const Users = () => {
         totalRolePages > 1 && (
           <div className="pagination">
             <button 
-              className="pagination-btn"
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             >
-              Previous
+              ‹
             </button>
-            {Array.from({ length: totalRolePages }, (_, i) => i + 1)
-              .filter(page => page === 1 || page === totalRolePages || (page >= currentPage - 1 && page <= currentPage + 1))
-              .map((page, i, arr) => (
-                <>
-                  {i > 0 && arr[i-1] !== page - 1 && <span className="pagination-ellipsis">...</span>}
-                  <button
-                    key={page}
-                    className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                </>
-              ))}
+            
+            {[...Array(totalRolePages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={currentPage === index + 1 ? 'active' : ''}
+              >
+                {index + 1}
+              </button>
+            ))}
+            
             <button 
-              className="pagination-btn"
+              onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalRolePages}
-              onClick={() => setCurrentPage(prev => Math.min(totalRolePages, prev + 1))}
             >
-              Next
+              ›
             </button>
           </div>
         )
@@ -1051,6 +1141,8 @@ const Users = () => {
         isOpen={roleModalState.isOpen}
         onClose={closeRoleModal}
         onSubmit={handleRoleModalSubmit}
+        initialData={roleModalState.roleData}
+        mode={roleModalState.mode}
       />
     </div>
   );

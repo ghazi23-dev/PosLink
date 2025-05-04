@@ -1,5 +1,5 @@
-/* Reset default margins and padding */
-* {
+/* Scope reset to login page only */
+.login-container * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -23,6 +23,38 @@ body, html {
   position: relative;
 }
 
+/* Scope all form styles */
+.login-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form .form-group label {
+  color: #4B5565;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.login-form .form-group input {
+  padding: 12px 16px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+}
+
+.login-form .form-group input::placeholder {
+  color: #64748B;
+}
+
+.login-form .form-group input:focus {
+  outline: none;
+  border-color: #94A3B8;
+}
+
+/* Rest of your existing styles but with login- prefix */
 .login-left {
   flex: 1;
   display: flex;
@@ -30,12 +62,12 @@ body, html {
   padding: 40px;
 }
 
-.logo {
+.login-logo {
   width: 200px;
   margin-bottom: 20px;
 }
 
-.tagline {
+.login-tagline {
   color: white;
   font-size: 14px;
   margin-top: -10px;
@@ -50,15 +82,15 @@ body, html {
   flex-direction: column;
   position: fixed;
   top: 50%;
-  right: 80px;
+  right: 229px;
   transform: translateY(-50%);
 }
 
-.welcome-section {
+.login-welcome-section {
   margin-bottom: 32px;
 }
 
-.welcome-title {
+.login-welcome-title {
   color: white;
   font-size: 24px;
   font-weight: 600;
@@ -66,7 +98,7 @@ body, html {
   text-align: left;
 }
 
-.sign-in-text {
+.login-sign-in-text {
   color: #ffffff;
   font-size: 14px;
   text-align: left;
@@ -79,37 +111,7 @@ body, html {
   gap: 24px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  color: #4B5565;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.form-group input {
-  padding: 12px 16px;
-  background: #1E293B;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-}
-
-.form-group input::placeholder {
-  color: #64748B;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #94A3B8;
-}
-
-.sign-in-btn {
+.login-sign-in-btn {
   background: transparent;
   color: white;
   padding: 12px;
@@ -123,11 +125,11 @@ body, html {
   width: 100%;
 }
 
-.sign-in-btn:hover {
+.login-sign-in-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.divider {
+.login-divider {
   display: flex;
   align-items: center;
   margin: 24px 0;
@@ -135,8 +137,8 @@ body, html {
   font-size: 14px;
 }
 
-.divider::before,
-.divider::after {
+.login-divider::before,
+.login-divider::after {
   content: "";
   flex: 1;
   height: 1px;
@@ -144,7 +146,7 @@ body, html {
   margin: 0 16px;
 }
 
-.google-btn {
+.login-google-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,13 +163,13 @@ body, html {
   width: 100%;
 }
 
-.google-btn:hover {
+.login-google-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.google-icon {
-  width: 24px;
-  height: 24px;
+.login-google-icon {
+  width: 18px;
+  height: 18px;
   object-fit: contain;
 }
 
@@ -189,7 +191,7 @@ body, html {
   text-decoration: underline;
 }
 
-.error-message {
+.login-error-message {
   color: #DC2626;
   font-size: 14px;
   margin-bottom: 16px;
@@ -228,20 +230,20 @@ body, html {
     justify-content: center;
   }
 
-  .welcome-section {
+  .login-welcome-section {
     margin-bottom: 48px;
   }
 
-  .form-group input {
+  .login-form .form-group input {
     height: 48px;
   }
 
-  .sign-in-btn,
-  .google-btn {
+  .login-sign-in-btn,
+  .login-google-btn {
     height: 48px;
   }
 
-  .divider {
+  .login-divider {
     margin: 32px 0;
   }
 
@@ -255,13 +257,13 @@ body, html {
     padding: 24px 20px;
   }
 
-  .welcome-title {
+  .login-welcome-title {
     font-size: 20px;
   }
 
-  .form-group input,
-  .sign-in-btn,
-  .google-btn {
+  .login-form .form-group input,
+  .login-sign-in-btn,
+  .login-google-btn {
     height: 44px;
   }
 }

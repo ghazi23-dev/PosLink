@@ -47,13 +47,13 @@ const Login = () => {
       </div>
       
       <div className="login-right">
-        <div className="welcome-section">
-          <h1 className="welcome-title">Welcome</h1>
-          <p className="sign-in-text">Sign in</p>
+        <div className="login-welcome-section">
+          <h1 className="login-welcome-title">Welcome</h1>
+          <p className="login-sign-in-text">Sign in</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="login-error-message">{error}</div>}
           
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -81,15 +81,15 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="sign-in-btn">
+          <button type="submit" className="login-sign-in-btn">
             Sign in
           </button>
         </form>
 
-        <div className="divider">Or</div>
+        <div className="login-divider">Or</div>
 
-        <button className="google-btn">
-          <img src="/gmail_icon.png" alt="Gmail" className="google-icon" />
+        <button className="login-google-btn">
+          <img src="/gmail_icon.png" alt="Gmail" className="login-google-icon" />
           Sign in with Gmail
         </button>
 

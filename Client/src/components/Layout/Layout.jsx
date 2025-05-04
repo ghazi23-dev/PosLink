@@ -11,7 +11,10 @@ import {
   X,
   House,
   Globe,
-  List
+  List,
+  CaretUp,
+  CaretLeft,
+  CaretDown
 } from "@phosphor-icons/react";
 import './Layout.css';
 
@@ -29,6 +32,9 @@ const Layout = () => {
   const navigationMap = {
     users: {
       label: 'Users Management'
+    },
+    clients: {
+      label: 'Client Management'
     },
     products: {
       label: 'Product Management',
@@ -63,7 +69,8 @@ const Layout = () => {
         cash: 'Cash Drawer',
         deliveries: 'Deliveries'
       }
-    }
+    },
+    
   };
 
   // Function to generate breadcrumb items
@@ -149,7 +156,11 @@ const Layout = () => {
             >
               <ShoppingCart weight="fill" className="nav-icon" />
               <span>Product Management</span>
-              <CaretRight weight="bold" className="arrow-icon" />
+              {expandedMenus.products ? (
+                <CaretUp weight="bold" className="arrow-icon" />
+              ) : (
+                <CaretDown weight="bold" className="arrow-icon" />
+              )}
             </button>
             <div className="sub-menu">
               <NavLink to="/products/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
@@ -171,18 +182,22 @@ const Layout = () => {
             >
               <Storefront weight="fill" className="nav-icon" />
               <span>Stock Management</span>
-              <CaretRight weight="bold" className="arrow-icon" />
+              {expandedMenus.stock ? (
+                <CaretUp weight="bold" className="arrow-icon" />
+              ) : (
+                <CaretDown weight="bold" className="arrow-icon" />
+              )}
             </button>
             <div className="sub-menu">
-              <NavLink to="/stock/dashboard" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              {/* <NavLink to="/stock/dashboard" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Stock Dashboard
-              </NavLink>
+              </NavLink> */}
               <NavLink to="/stock/purchases" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Purchases
               </NavLink>
-              <NavLink to="/stock/gain" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              {/* <NavLink to="/stock/gain" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Gain Per Product
-              </NavLink>
+              </NavLink> */}
               <NavLink to="/stock/inventory" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Inventory
               </NavLink>
@@ -202,15 +217,19 @@ const Layout = () => {
             >
               <Table weight="fill" className="nav-icon" />
               <span>Table Management</span>
-              <CaretRight weight="bold" className="arrow-icon" />
+              {expandedMenus.table ? (
+                <CaretUp weight="bold" className="arrow-icon" />
+              ) : (
+                <CaretDown weight="bold" className="arrow-icon" />
+              )}
             </button>
             <div className="sub-menu">
-              <NavLink to="/tables/open" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              {/* <NavLink to="/tables/open" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Open Tables
-              </NavLink>
-              <NavLink to="/tables/history" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              </NavLink> */}
+              {/* <NavLink to="/tables/history" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Modification History
-              </NavLink>
+              </NavLink> */}
             </div>
           </div>
 
@@ -221,7 +240,11 @@ const Layout = () => {
             >
               <ClipboardText weight="fill" className="nav-icon" />
               <span>Orders & Payments</span>
-              <CaretRight weight="bold" className="arrow-icon" />
+              {expandedMenus.orders ? (
+                <CaretUp weight="bold" className="arrow-icon" />
+              ) : (
+                <CaretDown weight="bold" className="arrow-icon" />
+              )}
             </button>
             <div className="sub-menu">
               <NavLink to="/orders/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
@@ -235,6 +258,11 @@ const Layout = () => {
               </NavLink>
             </div>
           </div>
+
+          <NavLink to="/clients" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            <Globe weight="fill" className="nav-icon" />
+            <span>Client Management</span>
+          </NavLink>
         </nav>
       </aside>
       <main className="main-content">

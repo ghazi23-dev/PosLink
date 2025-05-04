@@ -879,7 +879,8 @@
 }
 
 .modal-content.turnover-modal {
-  max-height: 90vh; /* Increased from 80vh */
+  max-height: 90vh !important; /* Increased from 80vh */
+  max-width: 33% !important;
 }
 
 .modal-content.turnover-modal .modal-chart-container {

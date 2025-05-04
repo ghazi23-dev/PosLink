@@ -6,6 +6,11 @@ import ProductList from './components/Products/ProductsList';
 import CategoriesSub from './components/Products/categoriesSub';
 import Supplements from './components/Products/Supplements';
 import Login from './pages/Login';
+import Clients from './components/Clients/clients';
+import Purchases from './components/Stock/Purchases';
+import Inventory from './components/Stock/Inventory';
+import Ingredient from './components/Stock/Ingredients';
+import Recipe_Mangment from './components/Stock/Recipe_Mangment';
 
 import './App.css';
 
@@ -13,6 +18,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+      {/* <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        
+     
+        <Route path="/dashboard" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="clients" element={<Clients />} /> */}
+
+        
         {/* Login route outside of Layout */}
         <Route path="/login" element={<Login />} />
         
@@ -20,6 +36,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
+          <Route path="clients" element={<Clients />} />
           
           {/* Product Management Routes */}
           <Route path="products">
@@ -31,11 +48,10 @@ function App() {
           {/* Stock Management Routes */}
           <Route path="stock">
             <Route path="dashboard" element={<div>Stock Dashboard</div>} />
-            <Route path="purchases" element={<div>Purchases</div>} />
-            <Route path="gain" element={<div>Gain Per Product</div>} />
-            <Route path="inventory" element={<div>Inventory</div>} />
-            <Route path="ingredients" element={<div>Ingredient Management</div>} />
-            <Route path="recipes" element={<div>Recipe Management</div>} />
+            <Route path="purchases" element={<Purchases/>} />
+            <Route path="inventory" element={<Inventory/>} />
+            <Route path="ingredients" element={<Ingredient/>} />
+            <Route path="recipes" element={<Recipe_Mangment/>} />
           </Route>
 
           {/* Table Management Routes */}
