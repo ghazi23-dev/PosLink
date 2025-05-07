@@ -66,53 +66,58 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 24px;
 }
 
 .data-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
 }
 
 .data-table th,
 .data-table td {
-  white-space: nowrap;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.data-table th:first-child,
-.data-table td:first-child {
+/* Set specific widths for each column */
+.data-table th:nth-child(1), /* PRODUCT */
+.data-table td:nth-child(1) {
   width: 15%;
   min-width: 120px;
 }
 
-.data-table th:nth-child(2),
+.data-table th:nth-child(2), /* UNIT */
 .data-table td:nth-child(2) {
   width: 10%;
   min-width: 80px;
 }
 
-.data-table th:nth-child(3),
+.data-table th:nth-child(3), /* UNIT COST */
 .data-table td:nth-child(3) {
-  width: 12%;
+  width: 10%;
   min-width: 100px;
 }
 
-.data-table th:nth-child(4),
+.data-table th:nth-child(4), /* QUANTITY */
 .data-table td:nth-child(4) {
   width: 10%;
   min-width: 80px;
 }
 
-.data-table th:nth-child(5),
+.data-table th:nth-child(5), /* INGREDIENTS */
 .data-table td:nth-child(5) {
-  width: 43%;
-  white-space: normal;
+  width: 45%;
+  min-width: 300px;
 }
 
-.data-table th:last-child,
-.data-table td:last-child {
+.data-table th:nth-child(6), /* ACTIONS */
+.data-table td:nth-child(6) {
   width: 10%;
-  min-width: 60px;
+  min-width: 80px;
 }
 
 .data-table th {
@@ -147,17 +152,18 @@
 /* Ingredients Tags */
 .ingredients-tags {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
 }
 
 .ingredient-tag {
-  padding: 4px 12px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  color: #64748b;
+  white-space: nowrap;
 }
 
 /* Action Menu */
@@ -466,4 +472,9 @@
 .form-group input:focus {
   outline: none;
   border-color: #94A3B8;
+}
+
+/* Ensure the table takes full width of its container */
+.table-container table {
+  min-width: 100%;
 } 

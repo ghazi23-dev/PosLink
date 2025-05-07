@@ -9,6 +9,9 @@ import {
   X,
   Eye
 } from '@phosphor-icons/react';
+import { faArrowDownShortWide } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import './clients.css';
 
 const PreviewModal = ({ isOpen, onClose, client }) => {
@@ -207,7 +210,7 @@ const ClientFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
 };
 
 const Clients = () => {
-  const [clients, setClients] = useState(() => {
+  const [clients] = useState(() => {
     const savedClients = localStorage.getItem('clients');
     if (savedClients) {
       return JSON.parse(savedClients);
@@ -269,15 +272,10 @@ const Clients = () => {
         canceledOrders: 5,
         totalTurnover: 1225
       },
-      
-        
-      // Add more sample clients if needed
     ];
   });
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [previewModalState, setPreviewModalState] = useState({ isOpen: false, client: null });
-  const [clientModalState, setClientModalState] = useState({ isOpen: false, mode: 'add', clientData: null });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -299,169 +297,94 @@ const Clients = () => {
     setCurrentPage(page);
   };
 
-  const handlePreview = (client) => {
-    setPreviewModalState({ isOpen: true, client });
-  };
-
-  const closePreviewModal = () => {
-    setPreviewModalState({ isOpen: false, client: null });
-  };
-
-  const handleAddClient = (newClient) => {
-    const uniqueId = Math.max(...clients.map(c => c.id), 0) + 1;
-    const clientToAdd = { ...newClient, id: uniqueId };
-    const updatedClients = [...clients, clientToAdd];
-    setClients(updatedClients);
-    localStorage.setItem('clients', JSON.stringify(updatedClients));
-  };
-
-  const handleEditClient = (clientId) => {
-    const clientToEdit = clients.find(c => c.id === clientId);
-    setClientModalState({ isOpen: true, mode: 'edit', clientData: clientToEdit });
-  };
-
-  const handleClientSubmit = (formData) => {
-    if (clientModalState.mode === 'add') {
-      handleAddClient(formData);
-    } else {
-      const updatedClients = clients.map(client =>
-        client.id === clientModalState.clientData.id ? { ...formData, id: client.id } : client
-      );
-      setClients(updatedClients);
-      localStorage.setItem('clients', JSON.stringify(updatedClients));
-    }
-  };
-
-  const handleDelete = (clientId) => {
-    if (window.confirm('Are you sure you want to delete this client?')) {
-      const updatedClients = clients.filter(client => client.id !== clientId);
-      setClients(updatedClients);
-      localStorage.setItem('clients', JSON.stringify(updatedClients));
-    }
-  };
-
   return (
     <div className="clients-container">
-      <div className="clients-controls">
-        <div className="search-box">
-          <MagnifyingGlass weight="bold" className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <div className="action-buttons-container">
-          <button 
-            className="add-btn"
-            onClick={() => setClientModalState({ isOpen: true, mode: 'add', clientData: null })}
-          >
-            <Plus weight="bold" color='white'/>
-            Add
-          </button>
-        </div>
-      </div>
-
-      <div className="table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>
-                <div className="sortable">
-                  NAME
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  TOTAL ORDERS
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  ORDERS NOT TAKEN
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  CANCELED ORDERS
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  TOTAL TURNOVER
-                </div>
-              </th>
-              <th>
-                <div className="sortable">
-                  ACTIONS
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedClients.map(client => (
-              <tr key={client.id}>
-                <td>{client.name}</td>
-                <td>{client.totalOrders || 0}</td>
-                <td>{client.ordersNotTaken || 0}</td>
-                <td>{client.canceledOrders || 0}</td>
-                <td>{client.totalTurnover || 0}<sup>DT</sup></td>
-                <td>
-                  <ActionMenu
-                    onPreview={() => handlePreview(client)}
-                    onEdit={() => handleEditClient(client.id)}
-                    onDelete={() => handleDelete(client.id)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button 
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              ‹
-            </button>
-            
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={currentPage === index + 1 ? 'active' : ''}
-              >
-                {index + 1}
-              </button>
-            ))}
-            
-            <button 
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              ›
-            </button>
+      <div className="white-container">
+        <div className="clients-controls">
+          <div className="search-box">
+            <MagnifyingGlass weight="bold" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        )}
+        </div>
+
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>
+                  <div className="sortable">
+                    NAME <FontAwesomeIcon icon={faArrowDownShortWide} className="sort-icons"/>
+                  </div>
+                </th>
+                <th>
+                  <div className="sortable">
+                    TOTAL ORDERS
+                  </div>
+                </th>
+                <th>
+                  <div className="sortable">
+                    ORDERS NOT TAKEN
+                  </div>
+                </th>
+                <th>
+                  <div className="sortable">
+                    CANCELED ORDERS
+                  </div>
+                </th>
+                <th>
+                  <div className="sortable">
+                    TOTAL TURNOVER
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedClients.map(client => (
+                <tr key={client.id}>
+                  <td>{client.name}</td>
+                  <td>{client.totalOrders || 0}</td>
+                  <td>{client.ordersNotTaken || 0}</td>
+                  <td>{client.canceledOrders || 0}</td>
+                  <td>{client.totalTurnover || 0}<sup>DT</sup></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ‹
+              </button>
+              
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={currentPage === index + 1 ? 'active' : ''}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              
+              <button 
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                ›
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-
-      <ClientFormModal
-        isOpen={clientModalState.isOpen}
-        onClose={() => setClientModalState({ isOpen: false, mode: 'add', clientData: null })}
-        onSubmit={handleClientSubmit}
-        initialData={clientModalState.clientData}
-        mode={clientModalState.mode}
-      />
-
-      <PreviewModal 
-        isOpen={previewModalState.isOpen}
-        onClose={closePreviewModal}
-        client={previewModalState.client}
-      />
     </div>
   );
 };

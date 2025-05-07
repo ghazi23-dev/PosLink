@@ -393,7 +393,7 @@ const RecipeManagement = () => {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this recipe?')) {
-      setRecipes(recipes.filter(recipe => recipe.id !== id));
+    setRecipes(recipes.filter(recipe => recipe.id !== id));
     }
   };
 
@@ -429,34 +429,34 @@ const RecipeManagement = () => {
               <th>QUANTITY</th>
               <th>INGREDIENTS</th>
               <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
+          </tr>
+        </thead>
+        <tbody>
             {currentRecipes.map(recipe => (
               <tr key={recipe.id}>
                 <td>{recipe.name}</td>
-                <td>{recipe.unit}</td>
-                <td>{recipe.cost} DT</td>
-                <td>{recipe.quantity}</td>
-                <td>
+              <td>{recipe.unit}</td>
+              <td>{recipe.cost} DT</td>
+              <td>{recipe.quantity}</td>
+              <td>
                   <div className="ingredients-tags">
-                    {recipe.ingredients.map((ingredient, index) => (
+                  {recipe.ingredients.map((ingredient, index) => (
                       <span key={index} className="ingredient-tag">
                         {ingredient.name} ({ingredient.quantity} {ingredient.unit})
                       </span>
-                    ))}
-                  </div>
-                </td>
+                  ))}
+                </div>
+              </td>
                 <td>
                   <ActionMenu
                     onEdit={() => setModalState({ isOpen: true, mode: 'edit', data: recipe })}
                     onDelete={() => handleDelete(recipe.id)}
                   />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
         {totalPages > 1 && (
           <div className="pagination">
@@ -465,7 +465,7 @@ const RecipeManagement = () => {
               disabled={currentPage === 1}
             >
               ‹
-            </button>
+                </button>
             
             {[...Array(totalPages)].map((_, index) => (
               <button
@@ -482,10 +482,10 @@ const RecipeManagement = () => {
               disabled={currentPage === totalPages}
             >
               ›
-            </button>
+                </button>
           </div>
         )}
-      </div>
+        </div>
 
       <RecipeFormModal
         isOpen={modalState.isOpen}

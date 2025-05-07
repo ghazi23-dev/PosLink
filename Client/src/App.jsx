@@ -11,6 +11,10 @@ import Purchases from './components/Stock/Purchases';
 import Inventory from './components/Stock/Inventory';
 import Ingredient from './components/Stock/Ingredients';
 import Recipe_Mangment from './components/Stock/Recipe_Mangment';
+import TableContent from './components/tablemanagement/tableContent';
+import OrderList from './components/orders/ordersContent';
+import CashDrawer from './components/cash-drawer/cashDrawerContent';
+import Deliveries from './components/deliveries/deliveriesContent';
 
 import './App.css';
 
@@ -56,15 +60,14 @@ function App() {
 
           {/* Table Management Routes */}
           <Route path="tables">
-            <Route path="open" element={<div>Open Tables</div>} />
-            <Route path="history" element={<div>Modification History</div>} />
+            <Route path="tableManagement" element={<TableContent/>} />
           </Route>
 
           {/* Orders & Payments Routes */}
           <Route path="orders">
-            <Route path="list" element={<div>Orders</div>} />
-            <Route path="cash" element={<div>Cash Drawer</div>} />
-            <Route path="deliveries" element={<div>Deliveries</div>} />
+            <Route path="list" element={<OrderList/>} />
+            <Route path="cash" element={<CashDrawer/>} />
+            <Route path="deliveries" element={<Deliveries/>} />
           </Route>
         </Route>
       </Routes>

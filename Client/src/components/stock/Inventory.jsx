@@ -150,7 +150,7 @@ const Inventory = () => {
                   >
                     {option === 'All' && <span className="checkmark">✓</span>}
                     {option}
-                  </button>
+          </button>
                 ))}
               </div>
             )}
@@ -220,13 +220,13 @@ const Inventory = () => {
         <div className="controls-row">
           <div className="search-container">
             <Search className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search Items"
+          <input
+            type="text"
+            placeholder="Search Items"
               className="search-input"
-              value={searchTermMonthly}
-              onChange={(e) => setSearchTermMonthly(e.target.value)}
-            />
+            value={searchTermMonthly}
+            onChange={(e) => setSearchTermMonthly(e.target.value)}
+          />
           </div>
         </div>
 

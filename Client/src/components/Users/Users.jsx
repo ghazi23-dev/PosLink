@@ -77,7 +77,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' })
         };
         onSubmit(dataWithoutPassword);
       } else {
-        onSubmit(formData);
+      onSubmit(formData);
       }
       onClose();
     }
@@ -581,7 +581,7 @@ const ActionMenu = ({ onEdit, onDelete }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
+  
   return (
     <div className="action-menu" ref={menuRef}>
       <button 
@@ -594,7 +594,7 @@ const ActionMenu = ({ onEdit, onDelete }) => {
         <DotsThree size={20} weight="bold" />
       </button>
       {isOpen && (
-        <div className="action-menu-dropdown">
+          <div className="action-menu-dropdown">
           <button 
             className="action-menu-item"
             onClick={(e) => {
@@ -603,9 +603,9 @@ const ActionMenu = ({ onEdit, onDelete }) => {
               setIsOpen(false);
             }}
           >
-            <PencilSimple weight="bold" />
-            Edit
-          </button>
+              <PencilSimple weight="bold" />
+              Edit
+            </button>
           <button 
             className="action-menu-item"
             onClick={(e) => {
@@ -614,10 +614,10 @@ const ActionMenu = ({ onEdit, onDelete }) => {
               setIsOpen(false);
             }}
           >
-            <Trash weight="bold" />
-            Delete
-          </button>
-        </div>
+              <Trash weight="bold" />
+              Delete
+            </button>
+          </div>
       )}
     </div>
   );
