@@ -15,9 +15,13 @@ import {
   CaretUp,
   CaretDown,
   Buildings,
-  SignOut
+  SignOut,
+  
+
 } from "@phosphor-icons/react";
+import LoadingWrapper from '../common/LoadingWrapper';
 import './Layout.css';
+import { useNavigate } from "react-router-dom";
 
 const FrenchFlag = () => (
   <svg width="30" height="20" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,6 +47,7 @@ const Layout = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showShopMenu, setShowShopMenu] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const userMenuRef = useRef(null);
   const languageMenuRef = useRef(null);
   const [expandedMenus, setExpandedMenus] = useState({
@@ -52,9 +57,11 @@ const Layout = () => {
     orders: false
   });
 
+  const navigate = useNavigate();
+
   // Simplified to only include logo
   const currentRestaurant = {
-    logo: "/logo_image.png"
+    logo: "/logo_imagespo.png"
   };
 
   // Navigation map for breadcrumb labels
@@ -100,6 +107,20 @@ const Layout = () => {
       }
     }
   };
+
+  // Add restaurants data
+  const restaurants = [
+    { id: 1, name: 'Kayu Sushi', image: '/kayusuchi.jpeg' },
+    { id: 2, name: 'Munchies', image: '/munchies.jpeg' },
+    { id: 3, name: 'El Koocha', image: '/elkoocha.jpeg' },
+    { id: 4, name: 'Friends Pasta Bar', image: '/friendpastabar.jpeg' },
+    { id: 5, name: 'Bambino', image: '/bambino.jpeg' },
+  ];
+
+  // Filter restaurants based on search query
+  const filteredRestaurants = restaurants.filter(restaurant =>
+    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Function to generate breadcrumb items
   const getBreadcrumbItems = () => {
@@ -172,6 +193,13 @@ const Layout = () => {
     setIsSidebarOpen(prev => !prev);
   };
 
+  const handleLogout = () => {
+    // Optional: Add logout logic here (e.g., clearing tokens)
+    setTimeout(() => {
+      navigate("/login");
+    }, 500); // Delay of 500 milliseconds
+  };
+
   return (
     <div className="layout">
       <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={toggleSidebar}></div>
@@ -183,12 +211,12 @@ const Layout = () => {
         </div>
         
         <nav className="nav-menu">
-          <NavLink to="/" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <NavLink to="/app" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             <SquaresFour weight="fill" className="nav-icon" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/users" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <NavLink to="/app/users" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             <User weight="fill" className="nav-icon" />
             <span>User Management</span>
           </NavLink>
@@ -207,13 +235,13 @@ const Layout = () => {
               )}
             </button>
             <div className="sub-menu">
-              <NavLink to="/products/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/products/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Products List
               </NavLink>
-              <NavLink to="/products/categories" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/products/categories" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Categories & Sub-categories
               </NavLink>
-              <NavLink to="/products/supplements" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/products/supplements" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Supplements Management
               </NavLink>
             </div>
@@ -233,16 +261,16 @@ const Layout = () => {
               )}
             </button>
             <div className="sub-menu">
-              <NavLink to="/stock/purchases" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/stock/purchases" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Purchases
               </NavLink>
-              <NavLink to="/stock/inventory" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/stock/inventory" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Inventory
               </NavLink>
-              <NavLink to="/stock/ingredients" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/stock/ingredients" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Ingredient Management
               </NavLink>
-              <NavLink to="/stock/recipes" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/stock/recipes" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Recipe Management
               </NavLink>
             </div>
@@ -250,7 +278,7 @@ const Layout = () => {
 
           <div className="menu-group">
             <NavLink 
-              to="/tables/tableManagement"
+              to="/app/tables/tableManagement"
               className={`menu-trigger ${location.pathname.startsWith('/tables') ? 'active' : ''}`}
             >
               <Table weight="fill" className="nav-icon" />
@@ -272,19 +300,19 @@ const Layout = () => {
               )}
             </button>
             <div className="sub-menu">
-              <NavLink to="/orders/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/orders/list" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Orders
               </NavLink>
-              <NavLink to="/orders/cash" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/orders/cash" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Cash Drawer
               </NavLink>
-              <NavLink to="/orders/deliveries" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
+              <NavLink to="/app/orders/deliveries" className={({ isActive }) => isActive ? 'sub-link active' : 'sub-link'}>
                 Deliveries
               </NavLink>
             </div>
           </div>
 
-          <NavLink to="/clients" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <NavLink to="/app/clients" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             <Globe weight="fill" className="nav-icon" />
             <span>Client Management</span>
           </NavLink>
@@ -316,6 +344,40 @@ const Layout = () => {
             </div>
           </div>
           <div className="user-menu">
+            <div className="shop-selector-container">
+              <button
+                className="shop-selector-button"
+                onClick={() => setShowShopMenu(!showShopMenu)}
+              >
+                <Storefront weight="fill" className="icon" />
+                <span style={{ fontWeight: 'bold' }}>CHANGE SHOP</span>
+                <CaretDown weight="bold" color='red'className={`arrow-icon ${showShopMenu ? 'rotated' : ''}`} />
+              </button>
+              {showShopMenu && (
+                <div className="shop-selector-dropdown">
+                  <div className="search-container">
+                    <input 
+                      type="text" 
+                      placeholder="Search.." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <div className="shops-list">
+                    {filteredRestaurants.length > 0 ? (
+                      filteredRestaurants.map(restaurant => (
+                        <div key={restaurant.id} className="menu-item">
+                          <img src={restaurant.image} alt={restaurant.name} className="shop-logo" />
+                          <span>{restaurant.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-results">No restaurants found</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="language-menu-container" ref={languageMenuRef}>
               <button
                 onMouseEnter={() => setShowLanguageMenu(true)}
@@ -369,17 +431,23 @@ const Layout = () => {
                       </div>
                     )}
                   </div>
-                  <div className="menu-item logout-item">
-                    <SignOut weight="bold" />
-                    <span>Logout</span>
-                  </div>
+                  <div
+      className="menu-item logout-item"
+      onClick={handleLogout}
+      style={{ cursor: "pointer" }}
+    >
+      <SignOut weight="bold" />
+      <span>Logout</span>
+    </div>
                 </div>
               )}
             </div>
           </div>
         </header>
         <div className="content">
-          <Outlet />
+          <LoadingWrapper>
+            <Outlet />
+          </LoadingWrapper>
         </div>
       </main>
     </div>

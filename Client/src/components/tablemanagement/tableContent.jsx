@@ -6,6 +6,8 @@ import {
   CaretLeft,
   CaretRight
 } from '@phosphor-icons/react';
+import { MoreVertical } from 'lucide-react';
+
 import './tableContent.css';
 import { DotsThreeVertical } from '@phosphor-icons/react';
 
@@ -141,13 +143,13 @@ const TableManagement = () => {
                 <td>{table.user}</td>
                 <td>{table.price.toFixed(2)} DT</td>
                 <td>
-                  <div className="tc-table-actions">
+                  <div className="rm-action-menu">
                     <button 
-                      className="tc-action-btn"
+                      className="rm-action-menu-trigger"
                       onClick={() => handleActionClick(table.id, 'menu')}
                     >
-                      <DotsThreeVertical size={20} weight="bold" color="red" />
-                    </button>
+                              <MoreVertical className="w-5 h-5" />
+                              </button>
                   </div>
                 </td>
               </tr>
@@ -163,19 +165,25 @@ const TableManagement = () => {
             disabled={currentPage === 1}
             className="tc-pagination-btn"
           >
-            <CaretLeft size={18} weight="bold" />
+            ‹
           </button>
           
-          <div className="tc-page-indicator">
-            Page {currentPage} of {totalPages}
-          </div>
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`tc-pagination-number ${currentPage === index + 1 ? 'active' : ''}`}
+            >
+              {index + 1}
+            </button>
+          ))}
           
           <button 
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="tc-pagination-btn"
           >
-            <CaretRight size={18} weight="bold" />
+            ›
           </button>
         </div>
       )}

@@ -11,6 +11,8 @@ import {
 } from '@phosphor-icons/react';
 import { faArrowDownShortWide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { MoreVertical } from 'lucide-react';
+
 import './productsList.css';
 
 const PreviewModal = ({ isOpen, onClose, product }) => {
@@ -109,15 +111,16 @@ const ActionMenu = ({ onPreview, onEdit, onDelete }) => {
   }, []);
 
   return (
-    <div className="action-menu" ref={menuRef}>
+    <div className="rm-action-menu" ref={menuRef}>
       <button 
-        className="action-menu-trigger"
+        className="rm-action-menu-trigger"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
       >
-        <DotsThree size={20} weight="bold" />
+        <MoreVertical className="w-5 h-5 " style={{marginRight:"-20px"}} />
+        
       </button>
       {isOpen && (
         <div className="action-menu-dropdown">
@@ -642,35 +645,37 @@ const ProductsList = () => {
             ))}
           </tbody>
         </table>
-        
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button 
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              ‹
-            </button>
-            
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={currentPage === index + 1 ? 'active' : ''}
-              >
-                {index + 1}
-              </button>
-            ))}
-            
-            <button 
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              ›
-            </button>
-          </div>
-        )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            ‹
+          </button>
+          
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`pagination-number ${currentPage === index + 1 ? 'active' : ''}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            ›
+          </button>
+        </div>
+      )}
 
       <ProductFormModal
         isOpen={productModalState.isOpen}

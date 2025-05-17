@@ -54,7 +54,7 @@ const PreviewModal = ({ isOpen, onClose, client }) => {
           <div className="preview-row">
             <div className="preview-content">
               <span className="preview-label">Total Turnover : </span>
-              <span className="preview-value">{client.totalTurnover}<sup>DT</sup></span>
+              <span className="preview-value">{client.totalTurnovers}<sup>DT</sup></span>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, ChevronDown, Plus, MoreVertical, Box, AlertTriangle, Clock, ShoppingCart } from 'lucide-react';
+import { Search, Filter, ChevronDown, Plus, MoreVertical, Box, AlertTriangle, Clock, ShoppingCart ,Ban} from 'lucide-react';
 import './Ingredients.css';
 
 const AddIngredientModal = ({ isEdit, onClose, initialData = {}, onSubmit }) => {
@@ -221,10 +221,18 @@ const AddIngredientModal = ({ isEdit, onClose, initialData = {}, onSubmit }) => 
 const StockManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [stockData, setStockData] = useState([]);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [filters, setFilters] = useState({
+    category: '',
+    status: '',
+    minQuantity: '',
+    maxQuantity: ''
+  });
   const itemsPerPage = 10;
 
   // Load data from localStorage on component mount
@@ -249,7 +257,7 @@ const StockManagement = () => {
 
   const metrics = [
     { id: 1, title: "Stock value", value: "120DT", icon: <Box size={20} className="text-blue-600" /> },
-    { id: 2, title: "Out of stock", value: "12", icon: <ShoppingCart size={20} className="text-red-600" /> },
+    { id: 2, title: "Out of stock", value: "12", icon: <Ban size={20} className="text-red-600" /> },
     { id: 3, title: "Stock alert", value: "5", icon: <AlertTriangle size={20} className="text-yellow-600" /> },
     { id: 4, title: "Expiring", value: "2", icon: <Clock size={20} className="text-purple-600" /> },
   ];
@@ -284,11 +292,148 @@ const StockManagement = () => {
     setIsEditModalOpen(true);
   };
 
-  // Filtrage et pagination
-  const filteredData = stockData.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleMenuClick = (id) => {
+    setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId && !event.target.closest('.actions-container')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
+
+  // Filter data based on search term and filters
+  const filteredData = stockData.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !filters.category || item.category === filters.category;
+    const matchesStatus = !filters.status || item.status === filters.status;
+    
+    // Parse quantity for comparison (remove unit and convert to number)
+    const itemQuantity = parseFloat(item.quantity);
+    const matchesMinQuantity = !filters.minQuantity || itemQuantity >= parseFloat(filters.minQuantity);
+    const matchesMaxQuantity = !filters.maxQuantity || itemQuantity <= parseFloat(filters.maxQuantity);
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesMinQuantity && matchesMaxQuantity;
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      category: '',
+      status: '',
+      minQuantity: '',
+      maxQuantity: ''
+    });
+  };
+
+  const FilterModal = () => (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2 className="modal-title">Filter Ingredients</h2>
+          <button 
+            type="button"
+            onClick={() => setIsFilterModalOpen(false)} 
+            className="modal-close"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <div className="form-group">
+            <label className="form-label">Category</label>
+            <select
+              name="category"
+              className="form-input"
+              value={filters.category}
+              onChange={handleFilterChange}
+            >
+              <option value="">All Categories</option>
+              <option value="Vegetables">Vegetables</option>
+              <option value="Liquids">Liquids</option>
+              <option value="Meat">Meat</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Status</label>
+            <select
+              name="status"
+              className="form-input"
+              value={filters.status}
+              onChange={handleFilterChange}
+            >
+              <option value="">All Status</option>
+              <option value="In stock">In stock</option>
+              <option value="Out of stock">Out of stock</option>
+              <option value="Stock alert">Stock alert</option>
+            </select>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Min Quantity</label>
+              <input
+                type="number"
+                name="minQuantity"
+                className="form-input"
+                value={filters.minQuantity}
+                onChange={handleFilterChange}
+                placeholder="Min"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Max Quantity</label>
+              <input
+                type="number"
+                name="maxQuantity"
+                className="form-input"
+                value={filters.maxQuantity}
+                onChange={handleFilterChange}
+                placeholder="Max"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="btn-cancel"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsFilterModalOpen(false)}
+            className="btn-submit"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
   );
-  
+
+  // Filtrage et pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentItems = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -309,7 +454,10 @@ const StockManagement = () => {
           />
         </div>
         <div className="controls-buttons">
-          <button className="filter-btn">
+          <button 
+            className="filter-btn"
+            onClick={() => setIsFilterModalOpen(true)}
+          >
             <Filter className="w-4 h-4" />
             Filter
             <ChevronDown className="w-4 h-4" />
@@ -370,18 +518,27 @@ const StockManagement = () => {
                 </td>
                 <td>
                   <div className="actions-container">
-                    <button className="actions-btn">
+                    <button 
+                      className="actions-btn"
+                      onClick={() => handleMenuClick(item.id)}
+                    >
                       <MoreVertical className="w-5 h-5" />
                     </button>
-                    <div className="actions-menu">
+                    <div className={`actions-menu ${openMenuId === item.id ? 'show' : ''}`}>
                       <button 
-                        onClick={() => handleEdit(item)}
+                        onClick={() => {
+                          handleEdit(item);
+                          setOpenMenuId(null);
+                        }}
                         className="action-item"
                       >
                         Edit
                       </button>
                       <button 
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => {
+                          handleDelete(item.id);
+                          setOpenMenuId(null);
+                        }}
                         className="action-item delete"
                       >
                         Delete
@@ -412,6 +569,9 @@ const StockManagement = () => {
           ))}
         </div>
       </div>
+
+      {/* Add Filter Modal */}
+      {isFilterModalOpen && <FilterModal />}
 
       {/* Modals */}
       {isModalOpen && (

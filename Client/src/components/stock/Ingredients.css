@@ -128,12 +128,14 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
 }
 
 .ingredients-table {
-  width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
+  width: auto;
+  min-width: 100%;
 }
 
 .ingredients-table th {
@@ -146,6 +148,14 @@
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
+}
+
+.ingredients-table th:last-child,
+.ingredients-table td:last-child {
+  width: auto;
+  min-width: 80px;
+  text-align: center;
+  padding-right: 16px;
 }
 
 .ingredients-table td {
@@ -187,6 +197,8 @@
 /* Actions Menu */
 .actions-container {
   position: relative;
+  display: inline-block;
+  color: #ff0000;
 }
 
 .actions-btn {
@@ -194,6 +206,12 @@
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
 }
 
 .actions-btn:hover {
@@ -203,7 +221,7 @@
 .actions-menu {
   position: absolute;
   right: 0;
-  bottom: 100%;
+  top: 100%;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -212,13 +230,38 @@
   z-index: 50;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s ease;
-  margin-bottom: 5px;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  margin-top: 5px;
 }
 
 .actions-container:hover .actions-menu {
   opacity: 1;
   visibility: visible;
+}
+
+/* Add a small triangle pointer to the menu */
+.actions-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #e2e8f0;
+}
+
+.actions-menu::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid white;
 }
 
 .action-item {
@@ -232,6 +275,11 @@
   border: none;
   background: none;
   white-space: nowrap;
+  display: block;
+}
+
+.action-item:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .action-item:hover {
@@ -388,4 +436,11 @@
   font-weight: 500;
   border: none;
   cursor: pointer;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
 } 

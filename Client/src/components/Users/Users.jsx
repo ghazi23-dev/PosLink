@@ -8,12 +8,12 @@ import {
   MagnifyingGlass,
   X,
   Check,
-  DotsThree,
   FunnelSimple,
   Plus,
   CaretUp,
   CaretDown
 } from '@phosphor-icons/react';
+import { MoreVertical } from 'lucide-react';
 import { faArrowDownShortWide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { loadJsonData, getFromLocalStorage, saveToLocalStorage } from '../../utils/jsonUtils';
@@ -583,15 +583,15 @@ const ActionMenu = ({ onEdit, onDelete }) => {
   }, []);
   
   return (
-    <div className="action-menu" ref={menuRef}>
+    <div className="rm-action-menu" ref={menuRef}>
       <button 
-        className="action-menu-trigger"
+        className="rm-action-menu-trigger"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
       >
-        <DotsThree size={20} weight="bold" />
+        <MoreVertical className="w-5 h-5 mr-3"  />
       </button>
       {isOpen && (
           <div className="action-menu-dropdown">
@@ -653,7 +653,7 @@ const Users = () => {
       if (storedUsers && Array.isArray(storedUsers)) {
         setUsers(storedUsers);
       } else {
-        const data = await loadJsonData('/src/data/sampleData.json');
+        const data = await loadJsonData('data/sampleData.json');
         if (data?.users && Array.isArray(data.users)) {
           setUsers(data.users);
           saveToLocalStorage('users', data.users);

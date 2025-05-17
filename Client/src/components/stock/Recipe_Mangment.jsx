@@ -5,6 +5,8 @@ import {
   DotsThree,
   X
 } from '@phosphor-icons/react';
+import { MoreVertical} from 'lucide-react';
+
 import './Recipe_Management.css';
 
 const ActionMenu = ({ onEdit, onDelete }) => {
@@ -25,20 +27,20 @@ const ActionMenu = ({ onEdit, onDelete }) => {
   }, []);
 
   return (
-    <div className="action-menu" ref={menuRef}>
+    <div className="rm-action-menu" ref={menuRef}>
       <button 
-        className="action-menu-trigger"
+        className="rm-action-menu-trigger"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
       >
-        <DotsThree size={20} weight="bold" />
+        <MoreVertical className="w-5 h-5" />
       </button>
       {isOpen && (
-        <div className="action-menu-dropdown">
+        <div className="rm-action-menu-dropdown">
           <button 
-            className="action-menu-item"
+            className="rm-action-menu-item"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
@@ -48,7 +50,7 @@ const ActionMenu = ({ onEdit, onDelete }) => {
             Edit recipe
           </button>
           <button 
-            className="action-menu-item delete"
+            className="rm-action-menu-item delete"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
@@ -154,16 +156,16 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h3 className="modal-title">{mode === 'add' ? 'Add Recipe' : 'Edit Recipe'}</h3>
-          <button className="modal-close" onClick={onClose}>
+    <div className="rm-modal-overlay">
+      <div className="rm-modal-content">
+        <div className="rm-modal-header">
+          <h3 className="rm-modal-title">{mode === 'add' ? 'Add Recipe' : 'Edit Recipe'}</h3>
+          <button className="rm-modal-close" onClick={onClose}>
             <X weight="bold" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="modal-body">
-          <div className="recipe-name-input">
+        <form onSubmit={handleSubmit} className="rm-modal-body">
+          <div className="rm-recipe-name-input">
             <label>Name</label>
             <input
               type="text"
@@ -174,8 +176,8 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
             />
           </div>
 
-          <div className="recipe-details">
-            <div className="form-group">
+          <div className="rm-recipe-details">
+            <div className="rm-form-group">
               <label>Unit</label>
               <input
                 type="text"
@@ -186,7 +188,7 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
               />
             </div>
 
-            <div className="form-group">
+            <div className="rm-form-group">
               <label>Cost (DT)</label>
               <input
                 type="number"
@@ -199,7 +201,7 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
               />
             </div>
 
-            <div className="form-group">
+            <div className="rm-form-group">
               <label>Quantity</label>
               <input
                 type="number"
@@ -212,18 +214,18 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
             </div>
           </div>
 
-          <div className="ingredients-header">
+          <div className="rm-ingredients-header">
             <div className="left">
               <h4>List the ingredients of your recipe</h4>
               <span className="count">{formData.ingredients.length}</span>
             </div>
-            <button type="button" className="add-ingredient-btn" onClick={addIngredient}>
+            <button type="button" className="rm-add-ingredient-btn" onClick={addIngredient}>
               <Plus weight="bold" />
              
             </button>
           </div>
 
-          <table className="ingredients-table">
+          <table className="rm-ingredients-table">
             <thead>
               <tr>
                 <th>INGREDIENTS</th>
@@ -258,7 +260,7 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
                     </select>
                   </td>
                   <td>
-                    <div className="quantity-control">
+                    <div className="rm-quantity-control">
                       <button 
                         type="button"
                         onClick={() => handleQuantityChange(index, -1)}
@@ -300,7 +302,7 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
                   <td>
                     <button
                       type="button"
-                      className="delete-ingredient"
+                      className="rm-delete-ingredient"
                       onClick={() => removeIngredient(index)}
                     >
                       −
@@ -311,11 +313,11 @@ const RecipeFormModal = ({ isOpen, onClose, onSubmit, initialData, mode = 'add' 
             </tbody>
           </table>
 
-          <div className="modal-footer">
-            <button type="button" className="btn-cancel" onClick={onClose}>
+          <div className="rm-modal-footer">
+            <button type="button" className="rm-btn-cancel" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn-save">
+            <button type="submit" className="rm-btn-save">
               Save
             </button>
           </div>
@@ -398,10 +400,10 @@ const RecipeManagement = () => {
   };
 
   return (
-    <div className="recipes-container">
-      <div className="recipes-controls">
-        <div className="search-box">
-          <MagnifyingGlass weight="bold" className="search-icon" />
+    <div className="rm-recipes-container">
+      <div className="rm-recipes-controls">
+        <div className="rm-search-box">
+          <MagnifyingGlass weight="bold" className="rm-search-icon" />
           <input
             type="text"
             placeholder="Search recipes..."
@@ -411,7 +413,7 @@ const RecipeManagement = () => {
         </div>
         
         <button 
-          className="add-btn"
+          className="rm-add-btn"
           onClick={() => setModalState({ isOpen: true, mode: 'add', data: null })}
         >
           <Plus weight="bold" />
@@ -419,8 +421,8 @@ const RecipeManagement = () => {
         </button>
       </div>
 
-      <div className="table-container">
-        <table className="data-table">
+      <div className="rm-table-container">
+        <table className="rm-data-table">
           <thead>
             <tr>
               <th>PRODUCT</th>
@@ -439,9 +441,9 @@ const RecipeManagement = () => {
               <td>{recipe.cost} DT</td>
               <td>{recipe.quantity}</td>
               <td>
-                  <div className="ingredients-tags">
+                  <div className="rm-ingredients-tags">
                   {recipe.ingredients.map((ingredient, index) => (
-                      <span key={index} className="ingredient-tag">
+                      <span key={index} className="rm-ingredient-tag">
                         {ingredient.name} ({ingredient.quantity} {ingredient.unit})
                       </span>
                   ))}
@@ -459,7 +461,7 @@ const RecipeManagement = () => {
       </table>
 
         {totalPages > 1 && (
-          <div className="pagination">
+          <div className="rm-pagination">
             <button 
               onClick={() => setCurrentPage(prev => prev - 1)}
               disabled={currentPage === 1}

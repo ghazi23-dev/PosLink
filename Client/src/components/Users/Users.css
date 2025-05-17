@@ -352,13 +352,14 @@
 }
 
 .action-btn.delete:hover {
-  color: #DC2626;
+  color: #DC2626 !important;
   background: #FEE2E2;
 }
 
 .action-btn svg {
   width: 20px;
   height: 20px;
+  
 }
 
 /* Pagination */
@@ -582,7 +583,6 @@
 /* Action Menu Styles */
 .action-menu {
   position: relative;
-  display: inline-block;
 }
 
 .action-menu-trigger {
@@ -867,7 +867,3 @@
   transform: rotate(45deg);
 }
 
-/* Remove the transform rotate from dots icon */
-.action-menu-trigger svg {
-  transform: none;
-}

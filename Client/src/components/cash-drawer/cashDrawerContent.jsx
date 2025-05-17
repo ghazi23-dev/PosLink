@@ -3,7 +3,11 @@ import {
   MagnifyingGlass,
   FunnelSimple,
   CaretLeft,
-  CaretRight
+  CaretRight,
+  Money,
+  CreditCard,
+  Ticket,
+  Coins
 } from '@phosphor-icons/react';
 import './cashDrawerContent.css';
 
@@ -29,10 +33,30 @@ const CashDrawerContent = () => {
   const itemsPerPage = 6;
 
   const stats = [
-    { value: '2445 DT', description: 'Total collected' },
-    { value: '1200 DT', description: 'Cash' },
-    { value: '845 DT', description: 'Credit Card' },
-    { value: '400 DT', description: 'Restaurant tickets' }
+    { 
+      value: '1224', 
+      unit: 'DT',
+      description: 'Total collected',
+      icon: <Coins size={24} weight="duotone" />
+    },
+    { 
+      value: '824.5', 
+      unit: 'DT',
+      description: 'Cash',
+      icon: <Money size={24} weight="duotone" />
+    },
+    { 
+      value: '125.1', 
+      unit: 'DT',
+      description: 'Credit card',
+      icon: <CreditCard size={24} weight="duotone" />
+    },
+    { 
+      value: '33', 
+      unit: '',
+      description: 'Restaurant tickets',
+      icon: <Ticket size={24} weight="duotone" />
+    }
   ];
 
   const filterOptions = [
@@ -71,8 +95,14 @@ const CashDrawerContent = () => {
         <div className="cdw-stats-cards">
           {stats.map((stat, index) => (
             <div key={index} className="cdw-stat-card">
-              <div className="cdw-stat-value">{stat.value}</div>
-              <div className="cdw-stat-description">{stat.description}</div>
+              <div className="cdw-stat-icon">{stat.icon}</div>
+              <div className="cdw-stat-info">
+                <div className="cdw-stat-value">
+                  {stat.value}
+                  {stat.unit && <span className="cdw-stat-unit">{stat.unit}</span>}
+                </div>
+                <div className="cdw-stat-description">{stat.description}</div>
+              </div>
             </div>
           ))}
         </div>

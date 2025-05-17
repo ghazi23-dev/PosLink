@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, ChevronDown, MessageCircle } from 'lucide-react';
 import './Inventory.css';
+import InventoryForm from './InventoryForm';
 
 const Inventory = () => {
   const [searchTermInventory, setSearchTermInventory] = useState('');
@@ -12,6 +13,12 @@ const Inventory = () => {
   const [selectedSort, setSelectedSort] = useState('Date');
   const [gapOptionsOpen, setGapOptionsOpen] = useState(false);
   const [formData, setFormData] = useState({ date: '', name: '' });
+  const [showInventoryForm, setShowInventoryForm] = useState(false);
+  const [currentInventory, setCurrentInventory] = useState(null);
+  const [activeCommentId, setActiveCommentId] = useState(null);
+  const [popupStyle, setPopupStyle] = useState({});
+  const [monthlyComments, setMonthlyComments] = useState({});
+  const commentBtnRefs = useRef({});
 
   // Exemple de données par défaut pour les inventaires
   const defaultInventories = [
@@ -52,12 +59,28 @@ const Inventory = () => {
       title: formData.name,
       date: formData.date,
       manager: 'Yassine Ghribel',
-      difference: 90, // Default value for the difference
+      difference: 90,
     };
 
-    setInventories((prevInventories) => [...prevInventories, newInventory]);
-    setIsModalOpen(false); // Close modal after adding
-    setFormData({ date: '', name: '' }); // Reset form
+    setCurrentInventory(newInventory);
+    setIsModalOpen(false);
+    setShowInventoryForm(true);
+    setFormData({ date: '', name: '' });
+  };
+
+  const handleSaveInventory = (products) => {
+    // Save the inventory with its products
+    setInventories((prevInventories) => [...prevInventories, {
+      ...currentInventory,
+      products: products
+    }]);
+    setShowInventoryForm(false);
+    setCurrentInventory(null);
+  };
+
+  const handleCancelInventory = () => {
+    setShowInventoryForm(false);
+    setCurrentInventory(null);
   };
 
   const renderDifference = (saved, physical) => {
@@ -88,6 +111,53 @@ const Inventory = () => {
     setSortByOpen(false);
   };
 
+  const toggleComment = (itemId) => {
+    if (activeCommentId === itemId) {
+      setActiveCommentId(null);
+      return;
+    }
+
+    const btnElement = commentBtnRefs.current[itemId];
+    if (btnElement) {
+      const rect = btnElement.getBoundingClientRect();
+      setPopupStyle({
+        top: `${rect.bottom + 8}px`,
+      });
+    }
+    setActiveCommentId(itemId);
+  };
+
+  const handleCommentChange = (itemId, comment) => {
+    setMonthlyComments(prev => ({
+      ...prev,
+      [itemId]: comment
+    }));
+  };
+
+  const handleClickOutside = (e) => {
+    if (!e.target.closest('.comment-popup') && !e.target.closest('.comment-btn')) {
+      setActiveCommentId(null);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  if (showInventoryForm) {
+    return (
+      <InventoryForm
+        inventoryId={currentInventory.title}
+        date={currentInventory.date}
+        onSave={handleSaveInventory}
+        onCancel={handleCancelInventory}
+      />
+    );
+  }
+
   return (
     <div className="inventory-container">
       {/* Inventories Section */}
@@ -117,7 +187,7 @@ const Inventory = () => {
             />
           </div>
           <div className="sort-container">
-            <button 
+            {/* <button 
               className="sort-btn"
               onClick={() => {
                 setSortByOpen(!sortByOpen);
@@ -126,7 +196,7 @@ const Inventory = () => {
             >
               <Filter className="w-4 h-4" />
               Sort by {selectedSort}
-            </button>
+            </button> */}
             {sortByOpen && (
               <div className="sort-dropdown">
                 {sortOptions.map((option) => (
@@ -150,7 +220,7 @@ const Inventory = () => {
                   >
                     {option === 'All' && <span className="checkmark">✓</span>}
                     {option}
-          </button>
+                  </button>
                 ))}
               </div>
             )}
@@ -191,12 +261,12 @@ const Inventory = () => {
             <p className="section-subtitle">13/02/2025</p>
           </div>
           <div className="category-container">
-            <button
+            {/* <button
               onClick={() => setCategoryOpen(!categoryOpen)}
               className="category-btn"
             >
               {selectedCategory} <ChevronDown className="w-4 h-4" />
-            </button>
+            </button> */}
             {categoryOpen && (
               <div className="category-dropdown">
                 {categories.map((option) => (
@@ -254,7 +324,34 @@ const Inventory = () => {
                   </td>
                   <td className="gap-value neutral">120 DT</td>
                   <td>
-                    <MessageCircle className="comment-icon" />
+                    <div className="comment-cell">
+                      <button 
+                        ref={el => commentBtnRefs.current[item.id] = el}
+                        className={`comment-btn ${monthlyComments[item.id] ? 'has-comment' : ''}`}
+                        onClick={() => toggleComment(item.id)}
+                      >
+                        <MessageCircle size={18} />
+                      </button>
+                      {activeCommentId === item.id && (
+                        <div className="comment-popup" style={popupStyle}>
+                          <div className="comment-header">
+                            <h3>Comment</h3>
+                            <button 
+                              className="close-btn"
+                              onClick={() => setActiveCommentId(null)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <textarea
+                            value={monthlyComments[item.id] || ''}
+                            onChange={(e) => handleCommentChange(item.id, e.target.value)}
+                            placeholder="Add a comment..."
+                            autoFocus
+                          />
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

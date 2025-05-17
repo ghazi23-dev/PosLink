@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ArrowsClockwise, 
   ClipboardText, 
@@ -68,23 +69,49 @@ const Dashboard = () => {
   const [showConsumptionModal, setShowConsumptionModal] = useState(false);
   const [showAvailableCashModal, setShowAvailableCashModal] = useState(false);
 
-  const chartData = [
-    { month: 'Jan', value: 600 },
-    { month: 'Feb', value: 800 },
-    { month: 'Mar', value: 800 },
-    { month: 'Apr', value: 650 },
-    { month: 'May', value: 550 },
-    { month: 'Jun', value: 750 },
-    { month: 'Jul', value: 650 },
-    { month: 'Aug', value: 850 },
-    { month: 'Sep', value: 683.5 },
-    { month: 'Oct', value: 800 },
-    { month: 'Nov', value: 950 },
-    { month: 'Dec', value: 0 }
-  ].map(item => ({
-    ...item,
-    displayValue: item.month === 'Sep' ? `${item.value} TND` : ''
-  }));
+  // Add new state for chart data based on period
+  const [chartDataByPeriod, setChartDataByPeriod] = useState({
+    'Average hour': [
+      { label: '8AM', value: 250 },
+      { label: '10AM', value: 400 },
+      { label: '12PM', value: 650 },
+      { label: '2PM', value: 500 },
+      { label: '4PM', value: 750 },
+      { label: '6PM', value: 900 },
+      { label: '8PM', value: 600 },
+      { label: '10PM', value: 450 }
+    ],
+    'Day': [
+      { label: 'Mon', value: 2400 },
+      { label: 'Tue', value: 3200 },
+      { label: 'Wed', value: 2800 },
+      { label: 'Thu', value: 3600 },
+      { label: 'Fri', value: 4200 },
+      { label: 'Sat', value: 4800 },
+      { label: 'Sun', value: 3800 }
+    ],
+    'Month': [
+      { label: 'Jan', value: 600 },
+      { label: 'Feb', value: 800 },
+      { label: 'Mar', value: 800 },
+      { label: 'Apr', value: 650 },
+      { label: 'May', value: 550 },
+      { label: 'Jun', value: 750 },
+      { label: 'Jul', value: 650 },
+      { label: 'Aug', value: 850 },
+      { label: 'Sep', value: 683.5 },
+      { label: 'Oct', value: 800 },
+      { label: 'Nov', value: 950 },
+      { label: 'Dec', value: 700 }
+    ],
+    'Year': [
+      { label: '2020', value: 45000 },
+      { label: '2021', value: 52000 },
+      { label: '2022', value: 61000 },
+      { label: '2023', value: 85000 },
+      { label: '2024', value: 72000 }
+    ]
+  });
 
   const consumptionData = [
     { id: 1, ingredient: "FLOUR", totalCost: "60.000", unitCost: "15.000", totalQuantity: 4, unit: "g" },
@@ -133,7 +160,7 @@ const Dashboard = () => {
         return;
       }
 
-      const data = await loadJsonData('/src/data/dashboard.json');
+      const data = await loadJsonData('data/dashboard.json');
       if (data) {
         setSalesData(data.sales || []);
       }
@@ -211,18 +238,23 @@ const Dashboard = () => {
       }]
     },
     options: {
-      cutout: '60%',
+      cutout: '65%',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: 0
+      },
       plugins: {
         legend: {
           position: 'right',
           align: 'center',
           labels: {
-            boxWidth: 10,
-            boxHeight: 10,
+            boxWidth: 8,
+            boxHeight: 8,
             usePointStyle: false,
-            padding: 15,
+            padding: 10,
             font: {
-              size: 14,
+              size: 11,
               weight: 500
             },
             generateLabels: (chart) => {
@@ -249,17 +281,22 @@ const Dashboard = () => {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: 0
+      },
       plugins: {
         legend: {
           position: 'right',
           align: 'center',
           labels: {
-            boxWidth: 10,
-            boxHeight: 10,
+            boxWidth: 8,
+            boxHeight: 8,
             usePointStyle: false,
-            padding: 15,
+            padding: 10,
             font: {
-              size: 14,
+              size: 11,
               weight: 500
             },
             generateLabels: (chart) => {
@@ -497,6 +534,9 @@ const Dashboard = () => {
           <div className="modal-header">
             <div className="modal-title">
               <span>Total Consumption</span>
+              <span className="info-icon">
+                <Info size={25} weight="bold" />
+              </span>
             </div>
             <button className="modal-close" onClick={toggleConsumptionModal}>
               <X size={24} />
@@ -573,191 +613,248 @@ const Dashboard = () => {
     );
   };
 
-  return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div className="period-section">
-          <h2>Period</h2>
-          <p className="period-description">Choose the date range to show information on the dashboard</p>
-          <div className="date-picker-container">
-            <div className="select-date" onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}>
-              <Calendar size={20} weight="fill" className="calendar-icon" />
-              <span className="date-text">Select a date</span>
-              <span className="selected-date">{selectedDate}</span>
+  // Remove the old chartData constant and add a function to get current period data
+  const getCurrentChartData = () => {
+    const data = chartDataByPeriod[selectedPeriod];
+    return data.map(item => ({
+      ...item,
+      displayValue: item.label === (selectedPeriod === 'Month' ? 'Sep' : '') ? `${item.value} TND` : ''
+    }));
+  };
+
+  const renderDatePickerDropdown = () => {
+    if (!isDatePickerOpen) return null;
+
+    return createPortal(
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 99999,
+          pointerEvents: 'none'
+        }}
+      >
+        <div
+          ref={(node) => {
+            if (node) {
+              const buttonRect = document.querySelector('.select-date').getBoundingClientRect();
+              node.style.position = 'absolute';
+              node.style.top = `${buttonRect.bottom + 8}px`;
+              node.style.left = `${buttonRect.left}px`;
+            }
+          }}
+          style={{
+            position: 'absolute',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0px 4px 25px rgba(0, 0, 0, 0.1)',
+            width: '600px',
+            padding: '16px',
+            display: 'flex',
+            gap: '24px',
+            pointerEvents: 'auto'
+          }}
+        >
+          <div className="quick-select">
+            <button 
+              className={`${selectedRange.type === 'today' ? 'active' : ''} today-btn`}
+              onClick={() => handleQuickSelect('today')}
+            >
+              Today
+            </button>
+            <button 
+              className={selectedRange.type === 'lastWeek' ? 'active' : ''}
+              onClick={() => handleQuickSelect('lastWeek')}
+            >
+              Last week
+            </button>
+            <button 
+              className={selectedRange.type === 'lastMonth' ? 'active' : ''}
+              onClick={() => handleQuickSelect('lastMonth')}
+            >
+              Last month
+            </button>
+            <button 
+              className={selectedRange.type === 'custom' ? 'active' : ''}
+              onClick={() => setSelectedRange({ start: null, end: null, type: 'custom' })}
+            >
+              Customized range
+            </button>
+          </div>
+
+          <div className="calendar-section">
+            <div className="calendar-header">
+              <button 
+                className="nav-btn"
+                onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
+              >
+                <CaretLeft weight="bold" />
+              </button>
+              <span className="current-month">
+                {MONTHS[currentDate.getMonth()]}
+              </span>
+              <button 
+                className="nav-btn"
+                onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
+              >
+                <CaretRight weight="bold" />
+              </button>
             </div>
 
-            {isDatePickerOpen && (
-              <div className="date-picker-dropdown">
-                <div className="quick-select">
-                  <button 
-                    className={`${selectedRange.type === 'today' ? 'active' : ''} today-btn`}
-                    onClick={() => handleQuickSelect('today')}
-                  >
-                    Today
-                  </button>
-                  <button 
-                    className={selectedRange.type === 'lastWeek' ? 'active' : ''}
-                    onClick={() => handleQuickSelect('lastWeek')}
-                  >
-                    Last week
-                  </button>
-                  <button 
-                    className={selectedRange.type === 'lastMonth' ? 'active' : ''}
-                    onClick={() => handleQuickSelect('lastMonth')}
-                  >
-                    Last month
-                  </button>
-                  <button 
-                    className={selectedRange.type === 'custom' ? 'active' : ''}
-                    onClick={() => setSelectedRange({ start: null, end: null, type: 'custom' })}
-                  >
-                    Customized range
-                  </button>
-                </div>
+            <div className="calendar-grid">
+              {DAYS_OF_WEEK.map(day => (
+                <div key={day} className="calendar-day-header">{day}</div>
+              ))}
+              {generateCalendarDays().map(({ date, isCurrentMonth }, index) => (
+                <button
+                  key={index}
+                  className={`calendar-day 
+                    ${!isCurrentMonth ? 'other-month' : ''} 
+                    ${isDateInRange(date) ? 'in-range' : ''} 
+                    ${formatDate(date) === selectedDate ? 'selected' : ''}
+                    ${selectedRange.start && formatDate(date) === formatDate(selectedRange.start) ? 'range-start' : ''}
+                    ${selectedRange.end && formatDate(date) === formatDate(selectedRange.end) ? 'range-end' : ''}
+                  `}
+                  onClick={() => handleDateSelect(date)}
+                >
+                  {date.getDate()}
+                </button>
+              ))}
+            </div>
 
-                <div className="calendar-section">
-                  <div className="calendar-header">
-                    <button 
-                      className="nav-btn"
-                      onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
-                    >
-                      <CaretLeft weight="bold" />
-                    </button>
-                    <span className="current-month">
-                      {MONTHS[currentDate.getMonth()]}
-                    </span>
-                    <button 
-                      className="nav-btn"
-                      onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
-                    >
-                      <CaretRight weight="bold" />
-                    </button>
-                  </div>
-
-                  <div className="calendar-grid">
-                    {DAYS_OF_WEEK.map(day => (
-                      <div key={day} className="calendar-day-header">{day}</div>
-                    ))}
-                    {generateCalendarDays().map(({ date, isCurrentMonth }, index) => (
-                      <button
-                        key={index}
-                        className={`calendar-day 
-                          ${!isCurrentMonth ? 'other-month' : ''} 
-                          ${isDateInRange(date) ? 'in-range' : ''} 
-                          ${formatDate(date) === selectedDate ? 'selected' : ''}
-                          ${selectedRange.start && formatDate(date) === formatDate(selectedRange.start) ? 'range-start' : ''}
-                          ${selectedRange.end && formatDate(date) === formatDate(selectedRange.end) ? 'range-end' : ''}
-                        `}
-                        onClick={() => handleDateSelect(date)}
-                      >
-                        {date.getDate()}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="time-selector">
-                    <span>Time:</span>
-                    <div className="time-inputs">
-                      <select 
-                        value={selectedTime.hours}
-                        onChange={(e) => handleTimeChange('hours', e.target.value)}
-                      >
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map(hour => (
-                          <option key={hour} value={hour.toString().padStart(2, '0')}>
-                            {hour.toString().padStart(2, '0')}
-                          </option>
-                        ))}
-                      </select>
-                      <span>:</span>
-                      <select 
-                        value={selectedTime.minutes}
-                        onChange={(e) => handleTimeChange('minutes', e.target.value)}
-                      >
-                        {Array.from({ length: 60 }, (_, i) => i).map(minute => (
-                          <option key={minute} value={minute.toString().padStart(2, '0')}>
-                            {minute.toString().padStart(2, '0')}
-                          </option>
-                        ))}
-                      </select>
-                      <select 
-                        value={selectedTime.period}
-                        onChange={(e) => handleTimeChange('period', e.target.value)}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                    <button className="apply-btn" onClick={() => setIsDatePickerOpen(false)}>Apply</button>
-                  </div>
-                </div>
+            <div className="time-selector">
+              <span>Time:</span>
+              <div className="time-inputs">
+                <select 
+                  value={selectedTime.hours}
+                  onChange={(e) => handleTimeChange('hours', e.target.value)}
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(hour => (
+                    <option key={hour} value={hour.toString().padStart(2, '0')}>
+                      {hour.toString().padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <span>:</span>
+                <select 
+                  value={selectedTime.minutes}
+                  onChange={(e) => handleTimeChange('minutes', e.target.value)}
+                >
+                  {Array.from({ length: 60 }, (_, i) => i).map(minute => (
+                    <option key={minute} value={minute.toString().padStart(2, '0')}>
+                      {minute.toString().padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <select 
+                  value={selectedTime.period}
+                  onChange={(e) => handleTimeChange('period', e.target.value)}
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
               </div>
-            )}
+              <button className="apply-btn" onClick={() => setIsDatePickerOpen(false)}>Apply</button>
+            </div>
           </div>
         </div>
-        <div className="export-section">
-          <p className="export-description">Download the displayed data as an Excel or PDF file</p>
-          <div className="button-group">
-            <button className="export-btn excel">
-              <FileXls weight="fill" />
-              Export Excel
-            </button>
-            <button className="export-btn pdf">
-              <FilePdf weight="fill" />
-              Download PDF
-            </button>
+      </div>,
+      document.body
+    );
+  };
+
+  return (
+    <div className="dashboard">
+      <div className="top-section-wrapper">
+        <div className="dashboard-header">
+          <div className="period-section">
+            <h2>Period</h2>
+            <p className="period-description">Choose the date range to show information on the dashboard</p>
+            <div className="date-picker-container">
+              <div 
+                className="select-date" 
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  minWidth: '200px'
+                }}
+              >
+                <Calendar size={20} weight="fill" className="calendar-icon" />
+                <span className="date-text">Select a date</span>
+                <span className="selected-date">{selectedDate}</span>
+              </div>
+              {renderDatePickerDropdown()}
+            </div>
+          </div>
+          <div className="export-section">
+            <p className="export-description">Download the displayed data as an Excel or PDF file</p>
+            <div className="button-group">
+              <button className="export-btn excel">
+                <FileXls weight="fill" />
+                Export Excel
+              </button>
+              <button className="export-btn pdf" style={{backgroundColor: '#FFFFFF'}}>
+                <FilePdf weight="fill" />
+                Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="stats-grid">
+          <div className="stat-card" onClick={toggleTurnoverModal}>
+            <div className="stat-icon">
+              <ArrowsClockwise size={20} />
+            </div>
+            <div className="stat-content">
+              <h3>Turnover</h3>
+              <p className="stat-value">374.12<span className="unit">DT</span></p>
+            </div>
+          </div>
+          
+          <div className="stat-card" onClick={toggleAvailableCashModal}>
+            <div className="stat-icon">
+              <CurrencyCircleDollar size={20} />
+            </div>
+            <div className="stat-content">
+              <h3>Available Cash</h3>
+              <p className="stat-value">681.3<span className="unit">DT</span></p>
+            </div>
+          </div>
+
+          <div className="stat-card" onClick={() => setShowOrdersModal(true)}>
+            <div className="stat-icon">
+              <ClipboardText size={20} />
+            </div>
+            <div className="stat-content">
+              <h3>Number of orders</h3>
+              <p className="stat-value">32</p>
+            </div>
+          </div>
+
+          <div className="stat-card" onClick={toggleConsumptionModal}>
+            <div className="stat-icon">
+              <Coins size={20} />
+            </div>
+            <div className="stat-content">
+              <h3>Total Consumption</h3>
+              <p className="stat-value">500<span className="unit">DT</span></p>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="stats-grid">
-        <div className="stat-card" onClick={toggleTurnoverModal}>
-          <div className="stat-icon">
-            <ArrowsClockwise size={28} />
-          </div>
-          <div className="stat-content">
-            <h3>Turnover</h3>
-            <p className="stat-value">374.12<span className="unit">DT</span></p>
-          </div>
-        </div>
-        
-        <div className="stat-card" onClick={() => setShowOrdersModal(true)}>
-          <div className="stat-icon">
-            <ClipboardText size={28} />
-          </div>
-          <div className="stat-content">
-            <h3>Number of orders</h3>
-            <p className="stat-value">32</p>
-          </div>
-        </div>
-
-        <div className="stat-card" onClick={toggleConsumptionModal}>
-          <div className="stat-icon">
-            <Coins size={28} />
-          </div>
-          <div className="stat-content">
-            <h3>Total Consumption</h3>
-            <p className="stat-value">500<span className="unit">DT</span></p>
-          </div>
-        </div>
-
-        <div className="stat-card" onClick={toggleAvailableCashModal}>
-          <div className="stat-icon">
-            <CurrencyCircleDollar size={28} />
-          </div>
-          <div className="stat-content">
-            <h3>Available Cash</h3>
-            <p className="stat-value">681.3<span className="unit">DT</span></p>
-          </div>
-        </div>
-      </div>
-
       <div className="sales-section">
         <div className="sales-header">
-          <h2>Sales Details</h2>
-          <button className="sort-btn">
-            <ArrowsDownUp weight="fill" />
-            Sort by
-          </button>
+          <h2>View Sales Details</h2>
         </div>
         <div className="table-container">
           <table className="sales-table">
@@ -829,8 +926,8 @@ const Dashboard = () => {
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={200}>
             <BarChart 
-              data={chartData} 
-              margin={{ top: 20, right: 20, left: 0, bottom: 5,  }}
+              data={getCurrentChartData()} 
+              margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
               barSize={19}
             >
               <CartesianGrid 
@@ -839,7 +936,7 @@ const Dashboard = () => {
                 stroke="#E2E8F0"
               />
               <XAxis 
-                dataKey="month" 
+                dataKey="label" 
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: '#64748B', fontSize: 12 }}
@@ -855,10 +952,10 @@ const Dashboard = () => {
                 dataKey="value"
                 radius={[4, 4, 4, 4]}
               >
-                {chartData.map((entry, index) => (
+                {getCurrentChartData().map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={entry.month === 'Sep' ? '#1E293B' : '#D1E6FF'} 
+                    fill={entry.label === (selectedPeriod === 'Month' ? 'Sep' : '') ? '#E30521' : '#D1E6FF'} 
                   />
                 ))}
                 <LabelList

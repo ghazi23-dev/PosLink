@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Dashboard from './components/Dashboard/Dashboard';
 import Users from './components/Users/Users';
@@ -22,22 +22,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-      {/* <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         
-     
-        <Route path="/dashboard" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="clients" element={<Clients />} /> */}
-
-        
-        {/* Login route outside of Layout */}
+        {/* Login route */}
         <Route path="/login" element={<Login />} />
         
         {/* Protected routes inside Layout */}
-        <Route path="/" element={<Layout />}>
+        <Route path="/app" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="clients" element={<Clients />} />

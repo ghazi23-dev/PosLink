@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Filter, Search } from "lucide-react";
+import { MoreVertical } from 'lucide-react';
+
 import "./Purchases.css";
 
 const Purchases = () => {
@@ -9,6 +11,11 @@ const Purchases = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  // Filter and search state
+  const [filterSupplier, setFilterSupplier] = useState("");
+  const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Initialisez les achats depuis le localStorage si disponibles
   const loadPurchases = () => {
@@ -29,15 +36,31 @@ const Purchases = () => {
 
   const [purchases, setPurchases] = useState(loadPurchases);
 
-  const totalPages = Math.ceil(purchases.length / itemsPerPage);
-  const paginatedData = purchases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Get unique suppliers for filter dropdown
+  const suppliers = Array.from(new Set(purchases.map(p => p.supplier)));
+
+  // Filter and search logic
+  const filteredPurchases = purchases.filter(p => {
+    const matchesSupplier = !filterSupplier || p.supplier === filterSupplier;
+    const matchesSearch =
+      p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.date.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSupplier && matchesSearch;
+  });
+
+  const totalPages = Math.ceil(filteredPurchases.length / itemsPerPage);
+  const paginatedData = filteredPurchases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const toggleMenu = (index, e) => {
     e.stopPropagation();
     setMenuVisible(menuVisible === index ? null : index);
   };
 
-  const handleClickOutside = () => setMenuVisible(null);
+  const handleClickOutside = () => {
+    setMenuVisible(null);
+    setShowSupplierDropdown(false);
+  };
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -86,6 +109,27 @@ const Purchases = () => {
     setMenuVisible(null);
   };
 
+  // Filter dropdown click handler
+  const handleSupplierFilterClick = (e) => {
+    e.stopPropagation();
+    setShowSupplierDropdown(!showSupplierDropdown);
+  };
+
+  // Supplier select handler
+  const handleSupplierSelect = (supplier) => {
+    setFilterSupplier(supplier);
+    setShowSupplierDropdown(false);
+    setCurrentPage(1);
+  };
+
+  // Clear supplier filter
+  const clearSupplierFilter = (e) => {
+    e.stopPropagation();
+    setFilterSupplier("");
+    setShowSupplierDropdown(false);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="max-w-8xl">
       <div className="white-container">
@@ -103,12 +147,38 @@ const Purchases = () => {
         {/* Controls Section */}
         <div className="controls-section">
           <div className="search-container">
-            <input type="text" placeholder="Search..." />
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              value={searchTerm}
+              onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            />
             <Search size={20} />
           </div>
-          <button className="filter-button">
-            <Filter size={16} /> Filter
-          </button>
+          <div className="filter-dropdown-container" style={{ position: 'relative' }}>
+            <button className="filter-button" onClick={handleSupplierFilterClick} type="button">
+              <Filter size={16} /> Filter
+            </button>
+            {showSupplierDropdown && (
+              <div className="supplier-dropdown-list">
+                <div 
+                  className={`supplier-dropdown-item${filterSupplier === '' ? ' selected' : ''}`}
+                  onClick={clearSupplierFilter}
+                >
+                  All Suppliers
+                </div>
+                {suppliers.map(supplier => (
+                  <div 
+                    key={supplier}
+                    className={`supplier-dropdown-item${filterSupplier === supplier ? ' selected' : ''}`}
+                    onClick={() => handleSupplierSelect(supplier)}
+                  >
+                    {supplier}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Table */}
@@ -131,12 +201,13 @@ const Purchases = () => {
                   <td>{purchase.totalAmount}</td>
                   <td>{purchase.supplier}</td>
                   <td>
-                    <div className="action-menu">
+                    <div className="rm-action-menu">
                       <button 
-                        className="action-menu-trigger"
+                        className="rm-action-menu-trigger"
                         onClick={(e) => toggleMenu(index, e)}
                       >
-                        <span className="dots">⋮</span>
+                              <MoreVertical className="w-5 h-5 ml-6"  style={{marginRight:"-22px"}}/>
+
                       </button>
                       {menuVisible === index && (
                         <div className="action-menu-dropdown">

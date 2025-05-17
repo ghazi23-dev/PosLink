@@ -398,9 +398,22 @@
   justify-content: flex-start;
 }
 
-.data-table th:nth-child(5),
+/* .data-table th:nth-child(5),
 .data-table td:nth-child(5) {
-  width: 20%;
+  width: 10% !important;
+  text-align: right !important;
+  padding-right: 24px !important;
+} */
+
+
+
+.data-table td:nth-child(5) {
+  width: 10% !important;
+  text-align: left !important;
+  padding-left: 209px !important;
+}
+.data-table th:nth-child(5) .sortable {
+  justify-content: flex-start;
 }
 
 /* Pagination styles */

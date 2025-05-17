@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import loginData from '../data/login.json';
+import loginData from '../../public/data/login.json';
 import './Login.css';
 
 const Login = () => {
@@ -33,7 +33,7 @@ const Login = () => {
       // Store user info in localStorage (you might want to use a token in real app)
       localStorage.setItem('user', JSON.stringify({ email: user.email }));
       // Redirect to home page
-      navigate('/');
+      navigate('/app');
     } else {
       setError('Invalid email or password');
     }
