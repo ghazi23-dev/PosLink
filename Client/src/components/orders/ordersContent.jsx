@@ -4,9 +4,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
-import { MoreVertical } from 'lucide-react';
-
 import './OrdersContent.css';
+
+
 
 // Initial orders data
 const initialOrders = [
@@ -29,7 +29,7 @@ const initialOrders = [
   { id: 1017, waiter: 'Tina West', total: 88.40, date: '2023-05-07', client: 'Patrick Gray', status: 'cancelled', table: 3, paymentMethod: 'Cash', items: [] },
   { id: 1018, waiter: 'Victor Rose', total: 112.10, date: '2023-05-07', client: 'Nancy Stone', status: 'completed', table: 5, paymentMethod: 'Card', items: [] },
   { id: 1019, waiter: 'Donna King', total: 69.00, date: '2023-05-06', client: 'Henry Wood', status: 'completed', table: 6, paymentMethod: 'Cash', items: [] },
-  { id: 1020, waiter: 'Kevin Page', total: 140.50, date: '2023-05-06', client: 'Laura Fox', status: 'completed', table: 4, paymentMethod: 'Card', items: [] }
+  { id: 1020, waiter: 'Kevin Pages', total: 140.50, date: '2023-05-06', client: 'Laura Fox', status: 'completed', table: 4, paymentMethod: 'Card', items: [] }
 ];
 
 const OrdersContent = () => {
@@ -39,6 +39,7 @@ const OrdersContent = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   
+
   // Initialize orders from localStorage or use default data
   const [orders, setOrders] = useState(() => {
     const savedOrders = localStorage.getItem('orders');
@@ -120,6 +121,7 @@ const OrdersContent = () => {
               <th>DATE</th>
               <th>CLIENT</th>
               <th>ACTIONS</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -134,11 +136,9 @@ const OrdersContent = () => {
                   <div className="table-actions">
                     {activeTab === 'orders' ? (
                       <>
-                      <div className="rm-action-menu">
-                        <button className="rm-action-menu-trigger" onClick={() => handleMenuClick(order.id)}>
-                        <MoreVertical className="w-5 h-5 mr-4" />
+                        <button className="action-btn" onClick={() => handleMenuClick(order.id)}>
+                          <DotsThreeVertical size={20} color="red" weight="bold" />
                         </button>
-                        </div>
                         {openMenuId === order.id && (
                           <div className="dropdown-menu">
                             <button onClick={() => handlePreviewClick(order)}>

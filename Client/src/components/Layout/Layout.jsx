@@ -415,7 +415,7 @@ const Layout = () => {
                   onMouseEnter={() => setShowUserMenu(true)}
                   onMouseLeave={() => setShowUserMenu(false)}
                 >
-                  <div 
+                  {/* <div 
                     className="menu-item shop-item"
                     onMouseEnter={() => setShowShopMenu(true)}
                     onMouseLeave={() => setShowShopMenu(false)}
@@ -430,7 +430,7 @@ const Layout = () => {
                         <div className="menu-item">Shop 3</div>
                       </div>
                     )}
-                  </div>
+                  </div> */}
                   <div
       className="menu-item logout-item"
       onClick={handleLogout}

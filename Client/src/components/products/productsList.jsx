@@ -465,7 +465,8 @@ const ProductsList = () => {
         subCategory: 'Crepes',
         category: 'Food',
         price: 12
-      }
+      },
+      
     ];
   });
   const [searchQuery, setSearchQuery] = useState('');

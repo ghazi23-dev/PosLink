@@ -169,15 +169,7 @@ const Dashboard = () => {
     loadDashboardData();
   }, []);
 
-  const handleExportExcel = () => {
-    // Implement Excel export functionality
-    console.log('Exporting to Excel...');
-  };
 
-  const handleExportPDF = () => {
-    // Implement PDF export functionality
-    console.log('Exporting to PDF...');
-  };
 
   const renderCustomLabel = (props) => {
     const { x, y, value } = props;
@@ -457,14 +449,14 @@ const Dashboard = () => {
           </div>
           <div className="modal-body">
             <div className="modal-chart-container">
-              <ResponsiveContainer width="70%" height={300}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={turnoverPieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={80}
-                    outerRadius={140}
+                    innerRadius={window.innerWidth <= 768 ? 60 : 80}
+                    outerRadius={window.innerWidth <= 768 ? 100 : 140}
                     paddingAngle={2}
                     dataKey="value"
                     labelLine={false}
